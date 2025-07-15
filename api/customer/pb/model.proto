@@ -1,0 +1,702 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.customer.pb;
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/api/customer/pb";
+
+// Java Options
+option java_package = "com.github.retailcortext.api.customer.pb";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+import "api/common/pb/model.proto";
+import "api/party/pb/model.proto";
+import "api/enums/currency/pb/currency.proto";
+import "api/enums/lang/pb/lang.proto";
+
+/*
+ * Consumer represents an individual or entity that purchases or potentially purchases
+ * products and services from the retailer. This is a fundamental concept in retail
+ * customer relationship management, representing the target audience for retail
+ * marketing, sales, and service activities across all channels and touchpoints.
+ * 
+ * This aligns with ARTS retail data model principles and OpenSchema.org Customer
+ * schema, providing a unified view that combines the best aspects of both models.
+ * 
+ * Key retail aspects:
+ * - Foundation for customer acquisition and retention strategies
+ * - Enables personalized marketing and customer experience management
+ * - Supports customer journey tracking across all retail touchpoints
+ * - Critical for customer lifetime value analysis and segmentation
+ * - Enables omnichannel customer identity resolution and unification
+ * - Foundation for loyalty programs and customer engagement initiatives
+ * - Supports regulatory compliance for customer data protection
+ */
+message Consumer {
+  // Unique versioned identifier for the consumer entity, enabling historical tracking
+  // and temporal data management consistent with ARTS data model principles
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the underlying party entity that contains the consumer's
+  // personal information, contact details, and demographic data
+  api.common.pb.VersionID party_id = 2 [json_name = 'party_id'];
+
+  // Reference to the party role assignment that defines this entity's
+  // relationship and permissions within the retail ecosystem
+  string party_role_assignment_id = 3 [json_name = 'party_assignment_id'];
+
+  // Business identifiers used across retail systems for consumer identification,
+  // supporting integration with external systems and legacy customer numbers
+  repeated api.common.pb.BusinessKey business_keys = 4 [json_name = 'business_keys'];
+
+  // Current registration and privacy preference state for this consumer,
+  // critical for compliance and customer experience management
+  api.party.pb.PartyRegistrationState registration_state = 5 [json_name = 'registration_state'];
+
+  // Date when this consumer record was created in the system,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 6 [json_name = 'created_date'];
+
+  // Date when this consumer record was last modified,
+  // enabling change tracking and data freshness monitoring
+  google.protobuf.Timestamp last_modified_date = 7 [json_name = 'last_modified_date'];
+
+  // Status of the consumer record (active, inactive, suspended, etc.),
+  // supporting lifecycle management and business rules
+  string status = 8 [json_name = 'status'];
+
+  // Additional consumer-specific attributes and metadata that don't fit
+  // into standard fields, supporting extensibility and customization
+  map<string, string> additional_attributes = 99 [json_name = 'additional_attributes'];
+}
+
+/*
+ * ConsumerConversionState tracks the progression of consumers through the retail
+ * customer acquisition and lifecycle funnel. This is essential for retail marketing
+ * effectiveness, customer acquisition cost analysis, and conversion optimization
+ * across all channels. It enables retailers to understand and optimize the customer
+ * journey from initial awareness to loyal customer status.
+ * 
+ * This aligns with ARTS retail data model customer lifecycle concepts and 
+ * OpenSchema.org customer journey modeling for comprehensive conversion tracking.
+ * 
+ * Key retail aspects:
+ * - Enables customer acquisition funnel analysis and optimization
+ * - Supports targeted marketing campaigns based on conversion stage
+ * - Critical for measuring marketing ROI and channel effectiveness
+ * - Enables personalized customer experiences based on engagement level
+ * - Supports customer lifetime value prediction and segmentation
+ * - Foundation for retention and reactivation marketing strategies
+ * - Enables omnichannel customer journey tracking and optimization
+ * 
+ * State progression examples:
+ * POPULATION → PROSPECT → VISITOR → SHOPPER → CUSTOMER → INACTIVE_CUSTOMER
+ * 
+ * Each retailer can define custom conversion states based on their specific
+ * business model, customer journey, and marketing strategies.
+ */
+message ConsumerConversionState {
+  /*
+   * State defines the consumer's current position in the retail conversion funnel,
+   * determining appropriate marketing strategies and customer experience approaches.
+   * A consumer can only be in one active state at any given time.
+   */
+  enum State {
+    // General population - potential customers not yet engaged
+    POPULATION = 0;
+
+    // Prospect - targeted audience receiving retailer marketing messages
+    PROSPECT = 1;
+
+    // Visitor - individual who has visited store or website but not engaged
+    VISITOR = 2;
+
+    // Shopper - visitor actively browsing products and considering purchases
+    SHOPPER = 3;
+
+    // Customer - shopper who has completed at least one purchase transaction
+    CUSTOMER = 4;
+
+    // Inactive customer - previous customer with no recent purchase activity
+    INACTIVE_CUSTOMER = 5;
+
+    // Ex-customer - former customer who has explicitly ended relationship
+    EXCUSTOMER = 6;
+  }
+
+  // Unique versioned identifier for this conversion state record, enabling
+  // historical tracking and state transition analysis
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the consumer whose conversion state is being tracked,
+  // linking this record to the customer's overall profile
+  api.common.pb.VersionID consumer_id = 2 [json_name = 'consumer_id'];
+
+  // Channel identifier indicating where this conversion state was observed
+  // (e.g., online, in-store, mobile app, social media)
+  string channel_id = 3 [json_name = 'channel_id'];
+
+  // Current conversion state of the consumer, determining marketing
+  // strategies and customer experience approaches
+  State state = 4 [json_name = 'state'];
+
+  // Timestamp when this conversion state became effective,
+  // supporting conversion funnel timing analysis
+  google.protobuf.Timestamp effective = 5 [json_name = 'effective'];
+
+  // Timestamp when this conversion state expired or was superseded,
+  // enabling conversion velocity and retention analysis
+  google.protobuf.Timestamp expiration = 6 [json_name = 'expiration'];
+
+  reserved 7 to 98;
+
+  // Additional retailer-specific attributes for enhanced customer
+  // segmentation and personalization capabilities
+  map<string, string> additional_attributes = 99 [json_name = 'additional_attributes'];
+}
+
+/*
+ * Visitor represents an individual or automated agent that accesses retail touchpoints
+ * but has not yet been identified or converted to a higher engagement level. This is
+ * a critical concept in retail customer acquisition, representing the initial stage
+ * of customer interaction across digital and physical channels.
+ * 
+ * This aligns with ARTS retail data model visitor tracking concepts and 
+ * OpenSchema.org web visitor and customer journey modeling standards.
+ * 
+ * Key retail aspects:
+ * - Foundation for customer acquisition funnel measurement and optimization
+ * - Enables anonymous customer behavior tracking and analysis
+ * - Supports conversion rate optimization across all retail channels
+ * - Critical for understanding customer journey entry points and patterns
+ * - Enables personalization opportunities even for anonymous interactions
+ * - Foundation for retargeting and remarketing campaign strategies
+ * - Supports omnichannel customer experience optimization
+ * - Essential for retail analytics and customer journey mapping
+ * 
+ * Visitor tracking scenarios:
+ * - Digital: Website visitors, mobile app users, social media interactions
+ * - Physical: Store visitors (with appropriate technology and privacy compliance)
+ * - Omnichannel: Cross-channel visitor behavior correlation and analysis
+ * 
+ * Visitors represent the largest pool of potential customers and are critical
+ * for understanding market reach and conversion opportunities.
+ */
+message Visitor {
+  // Unique versioned identifier for the visitor session or entity, enabling
+  // visitor behavior tracking and conversion funnel analysis
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Username or identifier if the visitor has provided any identification
+  // without full registration, supporting progressive customer engagement
+  string user_name = 2 [json_name = 'user_name'];
+
+  // Email address if provided by the visitor for newsletters, promotions,
+  // or partial registration, enabling targeted marketing opportunities
+  string email_address = 3 [json_name = 'email_address'];
+
+  // Reference to the visitor's current conversion state, tracking their
+  // progression through the customer acquisition funnel
+  api.common.pb.VersionID consumer_conversion_state_id = 4 [json_name = 'consumer_conversion_state_id'];
+
+  // Date when this visitor record was created in the system,
+  // supporting audit trails and visitor session tracking
+  google.protobuf.Timestamp created_date = 5 [json_name = 'created_date'];
+
+  // Date when this visitor record was last modified,
+  // enabling visitor behavior tracking and session management
+  google.protobuf.Timestamp last_modified_date = 6 [json_name = 'last_modified_date'];
+
+  // Status of the visitor record (active, inactive, converted, etc.),
+  // supporting visitor lifecycle management and conversion tracking
+  string status = 7 [json_name = 'status'];
+
+  // Additional visitor-specific attributes and metadata that don't fit
+  // into standard fields, supporting extensibility and customization
+  map<string, string> additional_attributes = 99 [json_name = 'additional_attributes'];
+}
+
+/*
+ * Customer represents a consumer who has completed at least one purchase transaction
+ * with the retailer, establishing a transactional relationship. This is the most
+ * valuable segment in retail customer management, representing proven buyers who
+ * generate revenue and have demonstrated purchase intent and capability.
+ * 
+ * This aligns with ARTS retail data model Customer concepts and OpenSchema.org
+ * Customer schema, providing comprehensive customer relationship management
+ * capabilities that combine the best aspects of both standards.
+ * 
+ * Key retail aspects:
+ * - Primary revenue-generating segment requiring retention strategies
+ * - Foundation for customer lifetime value analysis and optimization
+ * - Critical for loyalty program enrollment and rewards management
+ * - Enables personalized marketing based on purchase history and preferences
+ * - Supports customer service and support relationship management
+ * - Foundation for cross-selling and upselling opportunities
+ * - Enables customer satisfaction measurement and improvement initiatives
+ * - Critical for customer retention and reactivation campaigns
+ * - Supports customer segmentation for targeted marketing and promotions
+ * 
+ * Customer lifecycle states:
+ * - Active: Recent purchase activity and ongoing engagement
+ * - Inactive: No recent purchases but still within retention window
+ * - At-risk: Declining engagement requiring intervention
+ * - Churned: Lost customers requiring reactivation strategies
+ * 
+ * Customers can be anonymous (guest checkout) or identified (registered account),
+ * each requiring different engagement and data management strategies.
+ */
+message Customer {
+  // Unique versioned identifier for the customer record, enabling historical tracking
+  // and temporal data management consistent with ARTS data model principles
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the customer's current conversion state, indicating their
+  // engagement level and appropriate marketing strategies
+  api.common.pb.VersionID consumer_conversion_state_id = 2 [json_name = 'consumer_conversion_state_id'];
+
+  // Reference to the underlying party entity containing customer's personal
+  // information, contact details, and demographic data
+  api.common.pb.VersionID party_id = 3 [json_name = 'party_id'];
+
+  // Indicates whether this customer maintains anonymity (guest purchases)
+  // or has provided identification for account-based relationship management
+  bool anonymous = 4 [json_name = 'anonymous'];
+
+  // Business identifiers used across retail systems for customer identification,
+  // supporting integration with external systems and legacy customer numbers
+  repeated api.common.pb.BusinessKey business_keys = 5 [json_name = 'business_keys'];
+
+  // Date when this customer record was created in the system,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 6 [json_name = 'created_date'];
+
+  // Date when this customer record was last modified,
+  // enabling change tracking and data freshness monitoring
+  google.protobuf.Timestamp last_modified_date = 7 [json_name = 'last_modified_date'];
+
+  // Status of the customer record (active, inactive, suspended, etc.),
+  // supporting lifecycle management and business rules
+  string status = 8 [json_name = 'status'];
+
+  // Additional customer-specific attributes and metadata that don't fit
+  // into standard fields, supporting extensibility and customization
+  map<string, string> additional_attributes = 99 [json_name = 'additional_attributes'];
+}
+
+/*
+ * KeyCustomer represents a registered customer who has provided comprehensive
+ * personal information and established a formal account relationship with the retailer.
+ * This is the highest value customer segment, enabling personalized experiences,
+ * loyalty programs, and comprehensive customer relationship management.
+ * 
+ * This aligns with ARTS retail data model registered customer concepts and 
+ * OpenSchema.org Customer schema for comprehensive customer relationship management.
+ * 
+ * Key retail aspects:
+ * - Foundation for personalized customer experiences and recommendations
+ * - Enables comprehensive customer lifetime value tracking and optimization
+ * - Critical for loyalty program enrollment and rewards management
+ * - Supports advanced customer segmentation and targeted marketing
+ * - Enables omnichannel customer experience with unified profile
+ * - Foundation for customer service excellence and relationship management
+ * - Supports regulatory compliance for customer data protection and privacy
+ * - Enables advanced analytics for customer behavior and preference analysis
+ * - Critical for customer retention and advocacy program development
+ * - Foundation for subscription services and recurring revenue models
+ * 
+ * KeyCustomer benefits:
+ * - Personalized product recommendations and marketing
+ * - Streamlined checkout and purchase experiences
+ * - Access to exclusive offers and early product launches
+ * - Comprehensive order history and account management
+ * - Priority customer service and support
+ * - Loyalty rewards and points accumulation
+ */
+message KeyCustomer {
+  // Unique versioned identifier for the key customer record, enabling historical tracking
+  // and temporal data management consistent with ARTS data model principles
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the underlying customer record, linking the registered
+  // customer profile to their transaction and interaction history
+  api.common.pb.VersionID customer_id = 2 [json_name = 'customer_id'];
+
+  // Reference to the customer's registration state, indicating their
+  // verification status and account standing for service delivery
+  api.common.pb.VersionID consumer_registration_state_id = 3 [json_name = 'consumer_registration_state_id'];
+
+  // Customer privacy preferences indicating communication channels they have
+  // opted out of, ensuring compliance with privacy regulations and preferences
+  repeated string privacy_opt_out = 4 [json_name = 'privacy_opt_out'];
+
+  // Preferred language for customer communications and service delivery,
+  // supporting internationalization and localized experiences
+  api.enums.lang.pb.Language preferred_language = 5 [json_name = 'preferred_language'];
+
+  // Preferred currency for pricing display and transactions,
+  // supporting international customer management
+  api.enums.currency.pb.Currency preferred_currency = 6 [json_name = 'preferred_currency'];
+
+  // Date when this key customer record was created in the system,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 7 [json_name = 'created_date'];
+
+  // Date when this key customer record was last modified,
+  // enabling change tracking and data freshness monitoring
+  google.protobuf.Timestamp last_modified_date = 8 [json_name = 'last_modified_date'];
+
+  // Status of the key customer record (active, inactive, suspended, etc.),
+  // supporting lifecycle management and business rules
+  string status = 9 [json_name = 'status'];
+
+  // Additional key customer-specific attributes and metadata that don't fit
+  // into standard fields, supporting extensibility and customization
+  map<string, string> additional_attributes = 99 [json_name = 'additional_attributes'];
+}
+
+/*
+ * CustomerGroupType defines the classification framework for organizing customers
+ * into meaningful segments for retail operations. This enables systematic customer
+ * segmentation strategies that support targeted marketing, pricing, and service
+ * delivery across different customer categories and business requirements.
+ * 
+ * This aligns with ARTS retail data model customer segmentation concepts and 
+ * OpenSchema.org audience and customer classification standards.
+ * 
+ * Key retail aspects:
+ * - Enables systematic customer segmentation for targeted marketing campaigns
+ * - Supports differential pricing strategies and promotional targeting
+ * - Critical for tax compliance and regulatory reporting requirements
+ * - Enables customer service level differentiation and priority handling
+ * - Supports loyalty program tier management and benefits allocation
+ * - Foundation for customer analytics and behavior analysis
+ * - Enables compliance with special customer categories (military, senior, student)
+ * - Supports B2B customer classification and account management
+ * 
+ * Common customer group types:
+ * - Demographic: Senior, Student, Military, Employee
+ * - Geographic: Local, Regional, International
+ * - Business: Retail, Wholesale, Corporate, Government
+ * - Loyalty: VIP, Premium, Standard, New
+ * - Tax: Tax-exempt, Reseller, Charity, Hospital
+ * - Channel: Online, In-store, Mobile, Catalog
+ */
+message CustomerGroupType {
+  // Unique versioned identifier for the customer group type, enabling consistent
+  // classification and historical tracking across all retail systems
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Business name for the customer group type, used in administrative
+  // interfaces and customer-facing communications
+  string name = 2 [json_name = 'name'];
+
+  // Detailed description of the group type purpose, criteria, and
+  // business rules for customer classification and management
+  string description = 3 [json_name = 'description'];
+
+  // Category of the group type for organizational purposes
+  // (e.g., "Demographic", "Geographic", "Business", "Loyalty")
+  string category = 4 [json_name = 'category'];
+
+  // Date when this group type was created in the system,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 5 [json_name = 'created_date'];
+
+  // Date when this group type was last modified,
+  // enabling change tracking and data freshness monitoring
+  google.protobuf.Timestamp last_modified_date = 6 [json_name = 'last_modified_date'];
+
+  // Status of the group type (active, inactive, deprecated, etc.),
+  // supporting lifecycle management and business rules
+  string status = 7 [json_name = 'status'];
+
+  // Additional group type-specific attributes and metadata that don't fit
+  // into standard fields, supporting extensibility and customization
+  map<string, string> additional_attributes = 99 [json_name = 'additional_attributes'];
+}
+
+/*
+ * CustomerGroup represents a specific collection of customers sharing common
+ * characteristics, behaviors, or business requirements. This enables targeted
+ * retail strategies including personalized marketing, differential pricing,
+ * specialized service levels, and compliance with regulatory or business rules.
+ * 
+ * This aligns with ARTS retail data model customer grouping concepts and 
+ * OpenSchema.org audience segmentation standards for comprehensive customer management.
+ * 
+ * Key retail aspects:
+ * - Enables targeted marketing campaigns and personalized customer experiences
+ * - Supports differential pricing strategies and promotional offers
+ * - Critical for tax compliance and regulatory reporting (tax-exempt entities)
+ * - Enables customer service level agreements and priority handling
+ * - Supports loyalty program benefits and tier-based rewards
+ * - Foundation for customer analytics and lifetime value optimization
+ * - Enables compliance with special customer requirements and regulations
+ * - Supports B2B account management and corporate customer relationships
+ * - Critical for inventory allocation and demand planning by customer segment
+ * 
+ * CustomerGroup vs PartyAffiliation:
+ * - CustomerGroup: Global categorization for business operations (e.g., "Senior Citizens")
+ * - PartyAffiliation: Specific relationships between identified parties (e.g., "John is married to Jane")
+ * 
+ * Common customer groups:
+ * - Demographic: Seniors (65+), Students, Military personnel, Employees
+ * - Tax status: Tax-exempt organizations, Hospitals, Charities, Resellers
+ * - Business type: Retail customers, Wholesale buyers, Corporate accounts
+ * - Loyalty tier: VIP, Gold, Silver, Bronze members
+ * - Geographic: Local residents, Regional customers, International buyers
+ */
+message CustomerGroup {
+  // Unique versioned identifier for the customer group, enabling consistent
+  // group management and historical tracking across all retail systems
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the customer group type that defines the classification
+  // framework and business rules for this specific group
+  api.common.pb.VersionID customer_group_type_id = 2 [json_name = 'customer_group_type_id'];
+
+  // Business name for the customer group, used in marketing materials,
+  // administrative interfaces, and customer communications
+  string name = 3 [json_name = 'name'];
+
+  // Detailed description of the group criteria, benefits, and business
+  // rules governing customer classification and treatment
+  string description = 4 [json_name = 'description'];
+
+  // Indicates whether customers in this group require identity verification
+  // for compliance, security, or business policy requirements
+  bool require_identity_verification = 5 [json_name = 'require_identity_verification'];
+
+  // Date when this customer group was created in the system,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 6 [json_name = 'created_date'];
+
+  // Date when this customer group was last modified,
+  // enabling change tracking and data freshness monitoring
+  google.protobuf.Timestamp last_modified_date = 7 [json_name = 'last_modified_date'];
+
+  // Status of the customer group (active, inactive, suspended, etc.),
+  // supporting lifecycle management and business rules
+  string status = 8 [json_name = 'status'];
+
+  // Additional customer group-specific attributes and metadata that don't fit
+  // into standard fields, supporting extensibility and customization
+  map<string, string> additional_attributes = 99 [json_name = 'additional_attributes'];
+}
+
+/*
+ * KeyCustomerGroupAffiliation represents the association between a registered
+ * customer and a specific customer group, enabling targeted retail strategies
+ * and specialized treatment based on group membership. This is critical for
+ * implementing differential pricing, exclusive offers, and customized service
+ * levels in retail operations.
+ * 
+ * Key retail aspects:
+ * - Enables targeted marketing campaigns and personalized offers
+ * - Supports differential pricing strategies and group-specific discounts
+ * - Critical for loyalty program tier management and benefits delivery
+ * - Enables compliance with special customer requirements and regulations
+ * - Supports customer service level agreements and priority handling
+ * - Foundation for customer analytics and segmentation analysis
+ * - Enables exclusive access to products, services, and promotional events
+ * - Supports B2B account management and corporate customer relationships
+ * - Critical for inventory allocation and demand planning by customer segment
+ * 
+ * Affiliation lifecycle management:
+ * - Active: Customer receives all group benefits and targeted communications
+ * - Inactive: Membership suspended but can be reactivated
+ * - Temporal: Time-bound memberships with automatic expiration
+ * - Verification: Identity verification requirements for sensitive groups
+ * 
+ * Common use cases:
+ * - VIP customer programs and exclusive access
+ * - Employee discount programs and corporate benefits
+ * - Senior citizen discounts and specialized services
+ * - Student programs and educational institution partnerships
+ * - Military and veteran appreciation programs
+ * - Healthcare professional and first responder programs
+ */
+message KeyCustomerGroupAffiliation {
+  /*
+   * Status indicates the current state of the customer's group membership,
+   * determining benefit eligibility and communication preferences.
+   */
+  enum Status {
+    // Membership is suspended or not currently active
+    INACTIVE = 0;
+
+    // Membership is active and customer receives all group benefits
+    ACTIVE = 1;
+  }
+
+  // Unique versioned identifier for this affiliation record, enabling membership
+  // tracking and historical analysis of group participation
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the customer group that defines the benefits, requirements,
+  // and business rules for this membership
+  api.common.pb.VersionID customer_group_id = 2 [json_name = 'customer_group_id'];
+
+  // Reference to the registered customer who holds this group membership,
+  // linking the affiliation to their complete customer profile
+  api.common.pb.VersionID key_customer_id = 3 [json_name = 'key_customer_id'];
+
+  // Current status of the group membership, determining benefit eligibility
+  // and participation in group-specific programs and communications
+  Status status = 4 [json_name = 'status'];
+
+  // Indicates whether this customer's group membership requires identity
+  // verification for compliance, security, or business policy requirements
+  bool require_identity_verification = 5 [json_name = 'require_identity_verification'];
+
+  // Timestamp when this group membership became effective, supporting
+  // temporal benefit management and historical analysis
+  google.protobuf.Timestamp effective = 6 [json_name = 'effective'];
+
+  // Timestamp when this group membership expires or was terminated,
+  // enabling automatic membership lifecycle management
+  google.protobuf.Timestamp expiration = 7 [json_name = 'expiration'];
+}
+
+/*
+ * KeyCustomerAccount represents a financial or transactional account relationship
+ * between a registered customer and the retailer. This enables various retail
+ * financial services including credit accounts, loyalty programs, layaway services,
+ * and specialized payment arrangements that enhance customer relationships and
+ * drive revenue growth.
+ * 
+ * Key retail aspects:
+ * - Enables customer credit and financing programs to increase sales
+ * - Supports loyalty and rewards programs for customer retention
+ * - Critical for layaway and installment payment services
+ * - Enables specialized services like rental and consignment programs
+ * - Supports customer service excellence through account management
+ * - Foundation for customer lifetime value optimization
+ * - Enables financial reporting and accounts receivable management
+ * - Supports regulatory compliance for financial services
+ * - Critical for customer retention through financial relationships
+ * - Enables personalized financial offers and credit management
+ * 
+ * Account lifecycle management:
+ * - Active: Account is operational and available for transactions
+ * - Inactive: Account is suspended but can be reactivated
+ * - Temporal: Time-bound accounts with automatic expiration
+ * - Financial: Interest rates and payment terms management
+ * 
+ * Common retail account types:
+ * - Revolving charge: Store credit cards and lines of credit
+ * - Layaway: Reserved merchandise with payment plans
+ * - Installment: Fixed-term payment arrangements
+ * - Rewards: Loyalty points and benefits accumulation
+ * - Service: Ongoing service contracts and warranties
+ * - Rental: Equipment and product rental agreements
+ */
+message KeyCustomerAccount {
+  /*
+   * Status indicates the current operational state of the customer account,
+   * determining transaction eligibility and service availability.
+   */
+  enum Status {
+    // Account is suspended or not currently operational
+    INACTIVE = 0;
+
+    // Account is active and available for transactions
+    ACTIVE = 1;
+  }
+
+  /*
+   * Type defines the specific category of customer account, determining
+   * the business rules, financial terms, and operational procedures.
+   */
+  enum Type {
+    // Revolving credit account with flexible payment terms
+    REVOLVING_CHARGE = 0;
+
+    // Trade account for business customers with net payment terms
+    TRADE = 1;
+
+    // Layaway account for reserved merchandise with payment plans
+    LAYAWAY = 3;
+
+    // Installment account with fixed payment schedule
+    INSTALLMENT = 4;
+
+    // Back order account for pre-ordered merchandise
+    BACK_ORDER = 5;
+
+    // Loyalty rewards account for points and benefits accumulation
+    REWARD_ACCOUNT = 6;
+
+    // Service work account for ongoing service contracts
+    SERVICE_WORK_ACCOUNT = 7;
+
+    // Rental account for equipment and product rentals
+    RENTAL_ACCOUNT = 8;
+
+    // Donation account for charitable contributions and fundraising
+    DONATION_ACCOUNT = 9;
+
+    // Consignment account for third-party merchandise sales
+    CONSIGNMENT_ACCOUNT = 10;
+
+    // Other specialized account types not covered by standard categories
+    OTHER_ACCOUNT = 11;
+  }
+
+  // Unique versioned identifier for the customer account, enabling account management
+  // and transaction tracking across all retail systems
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the registered customer who owns this account,
+  // linking the account to their complete customer profile
+  api.common.pb.VersionID key_customer_id = 2 [json_name = 'key_customer_id'];
+
+  // Reference to the financial ledger account for accounting integration,
+  // enabling proper financial reporting and accounts receivable management
+  string financial_ledger_account_id = 3 [json_name = 'financial_ledger_account_id'];
+
+  // Type of customer account, determining business rules, financial terms,
+  // and operational procedures for account management
+  Type customer_account_type = 4 [json_name = 'customer_account_type'];
+
+  // Current operational status of the account, determining transaction
+  // eligibility and service availability
+  Status status = 5 [json_name = 'status'];
+
+  // Business name for the account, used in customer communications
+  // and administrative interfaces
+  string name = 6 [json_name = 'name'];
+
+  // Timestamp when this account became effective, supporting
+  // account lifecycle management and historical analysis
+  google.protobuf.Timestamp effective = 7 [json_name = 'effective'];
+
+  // Timestamp when this account expires or was closed,
+  // enabling automatic account lifecycle management
+  google.protobuf.Timestamp expiration = 8 [json_name = 'expiration'];
+
+  // Annual interest rate percentage applied to unpaid balances,
+  // supporting credit account management and financial calculations
+  double unpaid_balance_interest_rate_percent = 9 [json_name = 'unpaid_balance_interest_rate_percent'];
+
+  // Number of days before interest charges apply to unpaid balances,
+  // supporting customer-friendly payment terms and account management
+  int32 grace_period_in_days = 10 [json_name = 'grace_period_in_days'];
+}

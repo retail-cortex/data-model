@@ -1,0 +1,448 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.payments.pb;
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/api/payments/pb";
+
+// Java Options
+option java_package = "com.github.retailcortext.api.payments.pb";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+import "api/common/pb/model.proto";
+import "api/enums/paryment/pb/payment.proto";
+import "api/enums/currency/pb/currency.proto";
+import "api/enums/country/pb/country.proto";
+
+/*******************************************************************************
+ * Payment Domain Model Objects
+ * 
+ * This model combines concepts from ARTS (Association for Retail Technology 
+ * Standards) data model and schema.org to represent payment domain entities
+ * in retail operations. It focuses on payment instruments, transactions,
+ * and related financial operations essential for retail commerce.
+ *******************************************************************************/
+
+/*
+ * PaymentInstrument represents a method or tool used to make payments in retail
+ * transactions. Based on ARTS RetailTransaction and schema.org PaymentMethod
+ * concepts, this encompasses credit cards, debit cards, digital wallets, cash,
+ * and other payment mechanisms used in retail operations.
+ * 
+ * Key retail aspects:
+ * - Enables omnichannel payment processing across all retail touchpoints
+ * - Supports PCI DSS compliance and secure payment data handling
+ * - Critical for payment reconciliation and financial reporting
+ * - Enables customer payment preference management
+ * - Supports fraud detection and risk management
+ * - Essential for payment method analytics and optimization
+ */
+message PaymentInstrument {
+
+  // Unique versioned identifier for the payment instrument, enabling
+  // historical tracking of payment method changes and updates
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Type of payment method (credit card, debit card, cash, etc.)
+  // from the standardized payment enumeration
+  api.enums.paryment.pb.Payment payment_type = 2 [json_name = 'payment_type'];
+
+  // Human-readable name or description of the payment instrument
+  // for display purposes and customer identification
+  string display_name = 3 [json_name = 'display_name'];
+
+  // Indicates whether this payment instrument is currently active
+  // and available for use in transactions
+  bool is_active = 4 [json_name = 'is_active'];
+
+  // Card-specific information for credit/debit card payment instruments
+  PaymentCard card_details = 5 [json_name = 'card_details'];
+
+  // Digital wallet information for mobile and online payment methods
+  DigitalWallet wallet_details = 6 [json_name = 'wallet_details'];
+
+  // Bank account information for direct debit and transfer payments
+  BankAccount bank_details = 7 [json_name = 'bank_details'];
+
+  // Account information for pay-on-account and store credit payments
+  PaymentAccount account_details = 8 [json_name = 'account_details'];
+
+  // Audit trail for payment instrument lifecycle management
+  api.common.pb.AuditRecord audit = 9 [json_name = 'audit'];
+}
+
+/*
+ * PaymentCard represents credit card, debit card, and gift card payment
+ * instruments. Based on ARTS TenderLineItem and schema.org CreditCard
+ * concepts, this supports secure card payment processing while maintaining
+ * PCI DSS compliance through tokenization and minimal data exposure.
+ * 
+ * Key retail aspects:
+ * - Enables secure card payment processing with tokenization
+ * - Supports card brand identification and routing
+ * - Critical for chargeback and dispute management
+ * - Enables card-specific promotions and loyalty programs
+ * - Supports international card acceptance and currency handling
+ */
+message PaymentCard {
+  // Tokenized card number for secure storage and processing
+  // Never store actual card numbers in clear text
+  string card_token = 1 [json_name = 'card_token'];
+
+  // Last four digits of the card number for customer identification
+  // and display purposes (PCI DSS compliant)
+  string last_four_digits = 2 [json_name = 'last_four_digits'];
+
+  // Card brand (Visa, MasterCard, American Express, etc.)
+  string card_brand = 3 [json_name = 'card_brand'];
+
+  // Card expiration month (1-12)
+  int32 expiry_month = 4 [json_name = 'expiry_month'];
+
+  // Card expiration year (YYYY format)
+  int32 expiry_year = 5 [json_name = 'expiry_year'];
+
+  // Cardholder name as it appears on the card
+  string cardholder_name = 6 [json_name = 'cardholder_name'];
+
+  // Billing address associated with the card
+  api.common.pb.Address billing_address = 7 [json_name = 'billing_address'];
+
+  // Card verification value token for secure processing
+  string cvv_token = 8 [json_name = 'cvv_token'];
+
+  // Indicates if this is the primary/default card for the customer
+  bool is_primary = 9 [json_name = 'is_primary'];
+}
+
+/*
+ * DigitalWallet represents mobile and digital payment methods such as
+ * Apple Pay, Google Pay, PayPal, and other electronic wallet services.
+ * Based on schema.org DigitalWallet and modern payment processing standards.
+ * 
+ * Key retail aspects:
+ * - Enables mobile and contactless payment acceptance
+ * - Supports tokenized payment processing for security
+ * - Critical for omnichannel customer experience
+ * - Enables quick checkout and improved conversion rates
+ * - Supports loyalty program integration through wallet apps
+ */
+message DigitalWallet {
+  // Wallet provider (Apple Pay, Google Pay, PayPal, etc.)
+  string wallet_provider = 1 [json_name = 'wallet_provider'];
+
+  // Wallet-specific account identifier or token
+  string wallet_account_id = 2 [json_name = 'wallet_account_id'];
+
+  // Email address associated with the wallet account
+  string wallet_email = 3 [json_name = 'wallet_email'];
+
+  // Phone number associated with the wallet account
+  string wallet_phone = 4 [json_name = 'wallet_phone'];
+
+  // Indicates if the wallet is verified by the provider
+  bool is_verified = 5 [json_name = 'is_verified'];
+}
+
+/*
+ * BankAccount represents bank account information for direct debit,
+ * ACH transfers, and other bank-based payment methods. Based on
+ * ARTS and banking industry standards for secure account handling.
+ * 
+ * Key retail aspects:
+ * - Enables direct bank payment processing
+ * - Supports recurring payment and subscription models
+ * - Critical for B2B payment processing
+ * - Enables lower-cost payment processing options
+ * - Supports international bank transfer capabilities
+ */
+message BankAccount {
+  // Tokenized bank account number for secure storage
+  string account_token = 1 [json_name = 'account_token'];
+
+  // Bank routing number or sort code
+  string routing_number = 2 [json_name = 'routing_number'];
+
+  // Account type (checking, savings, business, etc.)
+  string account_type = 3 [json_name = 'account_type'];
+
+  // Bank name for display and identification
+  string bank_name = 4 [json_name = 'bank_name'];
+
+  // Account holder name
+  string account_holder_name = 5 [json_name = 'account_holder_name'];
+
+  // Country where the bank account is held
+  api.enums.country.pb.Country bank_country = 6 [json_name = 'bank_country'];
+}
+
+/*
+ * PaymentAccount represents customer credit accounts and pay-on-account
+ * arrangements with the retailer. Based on ARTS Customer and schema.org
+ * concepts, this supports store credit accounts, trade accounts, and
+ * house accounts that allow customers to make purchases and pay later.
+ * 
+ * Key retail aspects:
+ * - Enables customer credit and account-based payment processing
+ * - Supports B2B trade accounts and corporate payment arrangements
+ * - Critical for customer loyalty and repeat business programs
+ * - Enables flexible payment terms and credit management
+ * - Supports account-based promotions and pricing
+ * - Essential for accounts receivable and credit risk management
+ */
+message PaymentAccount {
+  // Account number or identifier for the payment account
+  string account_number = 1 [json_name = 'account_number'];
+
+  // Account type (store credit, trade account, house account, etc.)
+  string account_type = 2 [json_name = 'account_type'];
+
+  // Account holder name or business name
+  string account_holder_name = 3 [json_name = 'account_holder_name'];
+
+  // Current account balance in the specified currency
+  api.common.pb.Currency current_balance = 4 [json_name = 'current_balance'];
+
+  // Available credit limit for the account
+  api.common.pb.Currency credit_limit = 5 [json_name = 'credit_limit'];
+
+  // Available credit remaining (credit_limit - current_balance)
+  api.common.pb.Currency available_credit = 6 [json_name = 'available_credit'];
+
+  // Account status (active, suspended, closed, etc.)
+  string account_status = 7 [json_name = 'account_status'];
+
+  // Payment terms for the account (net 30, net 60, etc.)
+  string payment_terms = 8 [json_name = 'payment_terms'];
+
+  // Billing address for the account
+  api.common.pb.Address billing_address = 9 [json_name = 'billing_address'];
+
+  // Account opening date
+  google.protobuf.Timestamp account_opened_date = 10 [json_name = 'account_opened_date'];
+
+  // Last payment date
+  google.protobuf.Timestamp last_payment_date = 11 [json_name = 'last_payment_date'];
+
+  // Next payment due date
+  google.protobuf.Timestamp next_due_date = 12 [json_name = 'next_due_date'];
+
+  // Interest rate for overdue balances (if applicable)
+  double interest_rate = 13 [json_name = 'interest_rate'];
+
+  // Indicates if the account is in good standing
+  bool is_in_good_standing = 14 [json_name = 'is_in_good_standing'];
+
+  // Customer or business entity ID associated with this account
+  string customer_id = 15 [json_name = 'customer_id'];
+
+  // Business unit that manages this account
+  string managing_business_unit_id = 16 [json_name = 'managing_business_unit_id'];
+}
+
+/*
+ * PaymentTransaction represents a complete payment transaction in retail
+ * operations. Based on ARTS RetailTransaction and schema.org PaymentAction
+ * concepts, this captures the full payment lifecycle from authorization
+ * to settlement in retail commerce.
+ * 
+ * Key retail aspects:
+ * - Core entity for payment processing and reconciliation
+ * - Enables transaction tracking and audit trails
+ * - Critical for financial reporting and compliance
+ * - Supports multi-tender transactions and split payments
+ * - Enables refund and void processing
+ * - Essential for fraud detection and risk management
+ */
+message PaymentTransaction {
+
+  // Unique versioned identifier for the payment transaction
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Reference to the retail transaction this payment belongs to
+  string retail_transaction_id = 2 [json_name = 'retail_transaction_id'];
+
+  // Payment instrument used for this transaction
+  string payment_instrument_id = 3 [json_name = 'payment_instrument_id'];
+
+  // Transaction amount in the specified currency
+  api.common.pb.Currency amount = 4 [json_name = 'amount'];
+
+  // Current status of the payment transaction
+  PaymentStatus status = 5 [json_name = 'status'];
+
+  // Type of payment transaction (sale, refund, void, etc.)
+  PaymentTransactionType transaction_type = 6 [json_name = 'transaction_type'];
+
+  // Timestamp when the transaction was initiated
+  google.protobuf.Timestamp transaction_timestamp = 7 [json_name = 'transaction_timestamp'];
+
+  // Authorization code from the payment processor
+  string authorization_code = 8 [json_name = 'authorization_code'];
+
+  // Reference number from the payment processor
+  string processor_reference = 9 [json_name = 'processor_reference'];
+
+  // Gateway or processor used for this transaction
+  string payment_processor = 10 [json_name = 'payment_processor'];
+
+  // Additional transaction details and metadata
+  map<string, string> transaction_details = 11 [json_name = 'transaction_details'];
+
+  // Audit trail for transaction lifecycle management
+  api.common.pb.AuditRecord audit = 12 [json_name = 'audit'];
+}
+
+/*
+ * PaymentStatus enumeration represents the various states a payment
+ * transaction can be in during its lifecycle. Based on standard
+ * payment processing workflows and ARTS transaction status concepts.
+ */
+enum PaymentStatus {
+  PAYMENT_STATUS_UNKNOWN = 0;    // Unknown or unspecified status
+  PENDING = 1;                   // Transaction initiated but not processed
+  AUTHORIZED = 2;                // Payment authorized but not captured
+  CAPTURED = 3;                  // Payment captured and funds reserved
+  SETTLED = 4;                   // Payment settled and funds transferred
+  FAILED = 5;                    // Transaction failed or declined
+  CANCELLED = 6;                 // Transaction cancelled before completion
+  REFUNDED = 7;                  // Transaction refunded to customer
+  VOIDED = 8;                    // Transaction voided before settlement
+  DISPUTED = 9;                  // Transaction under dispute/chargeback
+}
+
+/*
+ * PaymentTransactionType enumeration represents the different types
+ * of payment transactions that can occur in retail operations.
+ * Based on ARTS transaction types and standard payment processing.
+ */
+enum PaymentTransactionType {
+  TRANSACTION_TYPE_UNKNOWN = 0;  // Unknown or unspecified type
+  SALE = 1;                      // Standard sale transaction
+  REFUND = 2;                    // Refund to customer
+  VOID = 3;                      // Void of previous transaction
+  AUTHORIZATION = 4;             // Authorization only (no capture)
+  CAPTURE = 5;                   // Capture of previous authorization
+  PARTIAL_REFUND = 6;            // Partial refund of original transaction
+  ADJUSTMENT = 7;                // Payment adjustment or correction
+}
+
+/*
+ * PaymentMethod represents the configuration and capabilities of payment
+ * methods available at a business unit or retail location. Based on ARTS
+ * tender type configuration and schema.org PaymentMethod concepts.
+ * 
+ * Key retail aspects:
+ * - Enables payment method configuration per location
+ * - Supports payment routing and processor selection
+ * - Critical for payment acceptance optimization
+ * - Enables location-specific payment capabilities
+ * - Supports payment method analytics and performance tracking
+ */
+message PaymentMethod {
+
+  // Unique versioned identifier for the payment method configuration
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Business unit or location where this payment method is available
+  string business_unit_id = 2 [json_name = 'business_unit_id'];
+
+  // Type of payment method
+  api.enums.paryment.pb.Payment payment_type = 3 [json_name = 'payment_type'];
+
+  // Indicates if this payment method is currently enabled
+  bool is_enabled = 4 [json_name = 'is_enabled'];
+
+  // Display name for customer-facing interfaces
+  string display_name = 5 [json_name = 'display_name'];
+
+  // Minimum transaction amount for this payment method
+  api.common.pb.Currency minimum_amount = 6 [json_name = 'minimum_amount'];
+
+  // Maximum transaction amount for this payment method
+  api.common.pb.Currency maximum_amount = 7 [json_name = 'maximum_amount'];
+
+  // Processing fee configuration for this payment method
+  PaymentFee processing_fee = 8 [json_name = 'processing_fee'];
+
+  // Payment processor configuration
+  PaymentProcessor processor_config = 9 [json_name = 'processor_config'];
+
+  // Supported currencies for this payment method
+  repeated api.enums.currency.pb.Currency supported_currencies = 10 [json_name = 'supported_currencies'];
+
+  // Audit trail for payment method configuration changes
+  api.common.pb.AuditRecord audit = 11 [json_name = 'audit'];
+}
+
+/*
+ * PaymentFee represents the fee structure associated with payment processing.
+ * Based on standard payment processing fee models and retail cost management.
+ * 
+ * Key retail aspects:
+ * - Enables payment cost analysis and optimization
+ * - Supports dynamic pricing based on payment method
+ * - Critical for profitability analysis and fee management
+ * - Enables transparent fee disclosure to customers
+ */
+message PaymentFee {
+  // Fixed fee amount charged per transaction
+  api.common.pb.Currency fixed_fee = 1 [json_name = 'fixed_fee'];
+
+  // Percentage fee rate (e.g., 2.9% = 2.9)
+  double percentage_rate = 2 [json_name = 'percentage_rate'];
+
+  // Minimum fee amount for the transaction
+  api.common.pb.Currency minimum_fee = 3 [json_name = 'minimum_fee'];
+
+  // Maximum fee amount for the transaction
+  api.common.pb.Currency maximum_fee = 4 [json_name = 'maximum_fee'];
+
+  // Fee calculation method description
+  string fee_description = 5 [json_name = 'fee_description'];
+}
+
+/*
+ * PaymentProcessor represents the configuration for payment processing
+ * services and gateways used to handle payment transactions.
+ * 
+ * Key retail aspects:
+ * - Enables multi-processor payment routing
+ * - Supports processor failover and redundancy
+ * - Critical for payment processing optimization
+ * - Enables processor-specific feature utilization
+ */
+message PaymentProcessor {
+  // Processor name or identifier
+  string processor_name = 1 [json_name = 'processor_name'];
+
+  // Merchant account identifier with the processor
+  string merchant_id = 2 [json_name = 'merchant_id'];
+
+  // API endpoint for payment processing
+  string api_endpoint = 3 [json_name = 'api_endpoint'];
+
+  // Processor-specific configuration parameters
+  map<string, string> processor_config = 4 [json_name = 'processor_config'];
+
+  // Indicates if this processor is currently active
+  bool is_active = 5 [json_name = 'is_active'];
+
+  // Priority order for processor selection (lower = higher priority)
+  int32 priority = 6 [json_name = 'priority'];
+}

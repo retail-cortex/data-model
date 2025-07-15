@@ -1,0 +1,215 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.merchandise.pb;
+
+/*
+ * Go Lang Options
+ */
+option go_package = "github.com/retail-cortex/api/merchandise/pb";
+
+/*
+ * Java Options
+ */
+option java_package = "com.retailcortex.api.merchandise.pb";
+option java_multiple_files = true;
+
+import "api/common/pb/model.proto";
+
+import "api/merchandise/pb/category.proto";
+
+import "api/enterprise/pb/model.proto";
+
+import "api/enums/locale/pb/locale.proto";
+
+import "api/bq_table.proto";
+
+/*
+ * Supplier represents a business entity that provides merchandise to the retailer.
+ * In ARTS retail data model terms, this is a Party that plays the role of a supplier
+ * in the retail supply chain. Suppliers are critical for inventory management,
+ * procurement, and vendor relationship management in retail operations.
+ * 
+ * Key retail aspects:
+ * - Enables vendor management and supplier performance tracking
+ * - Supports procurement and purchase order processes
+ * - Links to financial systems through general ledger integration
+ * - Essential for supply chain visibility and vendor scorecarding
+ */
+message Supplier {
+  // Unique versioned identifier for the supplier entity, enabling historical tracking
+  // of supplier information changes over time for audit and compliance purposes
+  api.common.pb.VersionID id = 1;
+
+  // General ledger account code used for financial reporting and accounting integration.
+  // This code links the supplier to the retailer's chart of accounts for proper
+  // expense categorization, accounts payable processing, and financial reporting
+  string general_ledger_code = 2;
+}
+
+/*
+ * ProductHeaderAttributeValue represents a specific attribute value assigned to a product
+ * based on category-specific attribute rules. In retail operations, products have various
+ * attributes that define their characteristics, specifications, and properties that are
+ * important for merchandising, inventory management, and customer experience.
+ * 
+ * Key retail aspects:
+ * - Enables rich product information management (PIM) capabilities
+ * - Supports category-specific attribute schemas for different product types
+ * - Critical for product search, filtering, and comparison functionality
+ * - Enables compliance with industry standards and regulatory requirements
+ * - Supports omnichannel product information consistency
+ */
+message ProductHeaderAttributeValue {
+  // Reference to the category template attribute rule that defines this attribute's
+  // schema, validation rules, and display properties. This ensures consistent
+  // attribute management across product categories
+  string category_template_attribute_rule_id = 1 [json_name = 'category_template_attribute_rule_id'];
+
+  // The actual attribute value, which can be either numeric or textual depending
+  // on the attribute type. Examples include size (numeric), color (string),
+  // weight (numeric), material (string), etc.
+  oneof value {
+    // Numeric attribute value for quantitative properties like dimensions,
+    // weight, capacity, or performance metrics
+    double number_value = 2 [json_name = 'number_value'];
+
+    // String attribute value for qualitative properties like color, material,
+    // brand, model, or descriptive characteristics
+    string string_value = 3 [json_name = 'string_value'];
+  }
+}
+
+/*
+ * ProductHeader contains locale-specific product information including marketing content,
+ * descriptions, and presentation details. In retail operations, products need to be
+ * presented differently across various markets, languages, and cultural contexts.
+ * This supports omnichannel retail experiences and international market expansion.
+ * 
+ * Key retail aspects:
+ * - Enables multi-language and multi-market product catalogs
+ * - Supports localized marketing and merchandising strategies
+ * - Critical for e-commerce product pages and in-store displays
+ * - Enables consistent brand presentation across channels
+ * - Supports SEO optimization through search terms and descriptions
+ * - Essential for product information management (PIM) systems
+ */
+message ProductHeader {
+  // Locale specification for this product header, determining language, region,
+  // and cultural context for product presentation and marketing content
+  api.enums.locale.pb.Locale locale = 1 [json_name = 'locale'];
+
+  // Brand name associated with the product, critical for brand management,
+  // customer recognition, and marketing campaigns in retail operations
+  string brand = 2 [json_name = 'brand'];
+
+  // Product name as displayed to customers, optimized for the specific locale
+  // and market. This is the primary product identifier for customer-facing systems
+  string name = 3 [json_name = 'name'];
+
+  // Concise product description for use in product listings, search results,
+  // and space-constrained displays like mobile apps or shelf labels
+  string short_description = 4 [json_name = 'short_description'];
+
+  // Detailed product description providing comprehensive information for
+  // product detail pages, catalogs, and customer decision-making
+  string long_description = 5 [json_name = 'long_description'];
+
+  // Search terms and keywords to improve product discoverability in
+  // e-commerce search, site search, and SEO optimization
+  repeated string search_terms = 6 [json_name = 'search_terms'];
+
+  // Product-specific attribute values that provide detailed specifications
+  // and characteristics relevant to the product category and customer needs
+  repeated ProductHeaderAttributeValue attribute_values = 8 [json_name = 'attribute_values'];
+
+  // Product images for visual merchandising, including primary product photos,
+  // lifestyle images, and detail shots for enhanced customer experience
+  repeated api.common.pb.Image images = 7 [json_name = 'images'];
+}
+
+/*
+ * Product represents a sellable item or service in the retail enterprise. This is the
+ * core entity in retail merchandise management, corresponding to the ARTS retail data
+ * model's Item concept. Products are the fundamental units of retail commerce that
+ * customers purchase and retailers manage through their lifecycle.
+ * 
+ * Key retail aspects:
+ * - Central to inventory management, pricing, and merchandising operations
+ * - Supports omnichannel retail experiences across all customer touchpoints
+ * - Enables product lifecycle management from introduction to discontinuation
+ * - Critical for demand planning, procurement, and supply chain management
+ * - Supports regulatory compliance and product safety requirements
+ * - Enables customer experience through rich product information and imagery
+ * - Foundation for retail analytics, reporting, and business intelligence
+ */
+message Product {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_product";
+
+  // Unique versioned identifier enabling historical tracking of product changes
+  // over time, supporting audit trails and temporal data management
+  api.common.pb.VersionID id = 1 [json_name = "id"];
+
+  // Business identifiers used across retail systems for product identification.
+  // Includes SKU (Stock Keeping Unit), UPC (Universal Product Code), 
+  // EAN (European Article Number), manufacturer part numbers, and internal codes
+  repeated api.common.pb.BusinessKey business_keys = 2 [json_name = "business_keys"];
+
+  // Reference to product template defining the structure and attributes schema
+  // for this product type, enabling consistent product data management
+  string product_template_id = 11 [json_name = 'product_template_id'];
+
+  // Locale-specific product information including names, descriptions, and
+  // marketing content for multi-market and multi-language retail operations
+  repeated ProductHeader headers = 3 [json_name = "headers"];
+
+  // Minimum acceptable selling price below which sales would result in losses.
+  // Critical for pricing strategies, markdown management, and profitability analysis
+  api.common.pb.Currency base_price = 5 [json_name = "base_price"];
+
+  // Tax classification code determining applicable taxes, rates, and compliance
+  // requirements for this product across different jurisdictions
+  api.enterprise.pb.TaxCode tax_code = 6 [json_name = "tax_code"];
+
+  // Hierarchical product categorization for merchandising, reporting, and
+  // customer navigation. Supports multiple classification schemes simultaneously
+  repeated api.merchandise.pb.Category categories = 7 [json_name = "categories"];
+
+  // Customer satisfaction or quality rating, supporting customer reviews,
+  // product recommendations, and merchandising decisions
+  double rating = 8;
+
+  // Physical and dimensional specifications including size, weight, volume,
+  // and other measurable characteristics important for logistics and display
+  repeated api.common.pb.NamedMeasure measurements = 9 [json_name = "measurements"];
+
+  // Product variants representing different configurations of the base product
+  // (e.g., different colors, sizes, or styles) with potentially different
+  // pricing, availability, or attributes
+  repeated api.common.pb.VersionID variations = 10 [json_name = "variations"];
+
+  // Alternative products that can be offered when this product is unavailable,
+  // supporting customer service and sales continuity
+  repeated api.common.pb.VersionID substitutions = 20 [json_name = "substitutions"];
+
+  // Associated or complementary products for cross-selling, upselling,
+  // and enhanced customer experience through product recommendations
+  repeated api.common.pb.VersionID related_products = 30 [json_name = "related_products"];
+
+  // Supplier relationships for this product, enabling vendor management,
+  // procurement planning, and supply chain optimization
+  repeated Supplier suppliers = 50 [json_name = 'suppliers'];
+}

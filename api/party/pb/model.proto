@@ -1,0 +1,905 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.party.pb;
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/api/party/pb";
+
+// Java Options
+option java_package = "com.github.retailcortext.api.party.pb";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+import "api/common/pb/model.proto";
+import "api/enums/currency/pb/currency.proto";
+import "api/enums/party/pb/party.proto";
+import "api/enums/lang/pb/lang.proto";
+
+/*
+ * PartyTemplate defines the data structure and validation rules for different
+ * types of parties in retail operations. This enables consistent data collection
+ * and management across various party types while supporting regulatory compliance
+ * and business requirements specific to retail customer and partner management.
+ * 
+ * Key retail aspects:
+ * - Standardizes customer data collection across all touchpoints
+ * - Supports regulatory compliance (GDPR, CCPA, PCI DSS)
+ * - Enables personalized customer experiences through structured data
+ * - Facilitates customer segmentation and marketing automation
+ * - Supports B2B partner and supplier data management
+ * - Critical for customer service and support operations
+ */
+message PartyTemplate {
+  /*
+   * Type defines the fundamental categories of parties in retail operations,
+   * each requiring different data structures and business processes.
+   */
+  enum Type {
+    // Individual consumer or customer
+    PERSON = 0;
+
+    // Business entity, supplier, or corporate customer
+    ORGANIZATION = 1;
+
+    // Family unit or household for demographic analysis and marketing
+    HOUSEHOLD = 2;
+
+    // Community group or association for specialized retail programs
+    COMMUNITY = 3;
+  }
+
+  /*
+   * Field defines the data collection requirements and validation rules
+   * for specific party attributes, ensuring data quality and compliance
+   * with retail business and regulatory requirements.
+   */
+  message Field {
+    // Indicates if this field is mandatory for party registration
+    // and data completeness requirements
+    bool required = 1;
+
+    // Allows multiple values for this field (e.g., multiple phone numbers,
+    // addresses, or email addresses)
+    bool repeatable = 2;
+
+    // Regular expression for data validation, ensuring data quality
+    // and format consistency across retail systems
+    string validation_regex = 3;
+
+    // Field identifier for system processing and data mapping
+    string name = 4;
+
+    // Human-readable description for user interfaces and documentation
+    string description = 5;
+  }
+
+  // Unique identifier for the party template, enabling template management
+  // and versioning across retail systems
+  string id = 1;
+
+  // Template version for change management and backward compatibility
+  // in evolving retail data requirements
+  int32 version = 2;
+
+  // Party type that this template applies to, determining the appropriate
+  // data structure and business processes
+  Type party_type_id = 3;
+
+  // Business name for the template, used in administrative interfaces
+  // and system configuration
+  string name = 4;
+
+  // Detailed description of the template purpose and usage context
+  // for business users and system administrators
+  string description = 5;
+
+  // Collection of field definitions that comprise this party template,
+  // defining the complete data structure for the party type
+  repeated Field fields = 6;
+}
+
+message FieldValue {
+
+}
+
+/*
+ * Party represents any individual, organization, or entity that has a relationship
+ * with the retail enterprise. This is a fundamental concept in the ARTS retail data
+ * model, encompassing customers, suppliers, employees, partners, and any other entity
+ * that interacts with the retailer in business transactions or relationships.
+ * 
+ * Key retail aspects:
+ * - Foundation for customer relationship management (CRM)
+ * - Enables unified view of all business relationships
+ * - Supports multi-role relationships (customer who is also an employee)
+ * - Critical for compliance and regulatory reporting
+ * - Enables personalization and customer experience management
+ * - Foundation for loyalty programs and customer analytics
+ * - Supports B2B partner and supplier relationship management
+ */
+message Party {
+  // Unique versioned identifier for the party, enabling historical tracking
+  // of party information changes and relationship evolution
+  api.common.pb.VersionID id = 1;
+
+  // Reference to the party template that defines the data structure
+  // and validation rules for this party type
+  string party_template_id = 2;
+
+  // Version of the party template used, ensuring data consistency
+  // and supporting template evolution over time
+  int32 party_template_version = 3;
+
+  // Business identifiers used across retail systems for party identification.
+  // Includes customer numbers, loyalty card numbers, employee IDs, vendor codes,
+  // and other external system identifiers
+  repeated api.common.pb.BusinessKey business_keys = 4;
+
+  // Contact methods and information for reaching this party, supporting
+  // customer service, marketing communications, and business operations
+  repeated api.common.pb.Contact contacts = 5;
+
+  // Current registration and privacy preference state for this party,
+  // critical for compliance and customer experience management
+  PartyRegistrationState registration_state = 6;
+
+  // Roles that this party plays in relation to the retail enterprise,
+  // enabling multi-faceted business relationships
+  repeated PartyRoleAssignment role_assignments = 7;
+
+  // Official identification documents and numbers associated with this party,
+  // supporting verification, compliance, and regulatory requirements
+  repeated PartyIdentification identifications = 8;
+
+  // Date when this party record was created in the system,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 9;
+
+  // Date when this party record was last modified,
+  // enabling change tracking and data freshness monitoring
+  google.protobuf.Timestamp last_modified_date = 10;
+
+  // Status of the party record (active, inactive, suspended, etc.),
+  // supporting lifecycle management and business rules
+  string status = 11;
+
+  // Additional party-specific attributes and metadata that don't fit
+  // into standard fields, supporting extensibility and customization
+  map<string, string> additional_attributes = 100;
+}
+
+/*
+ * PartyRegistrationState tracks the registration status and privacy preferences
+ * of parties throughout their relationship lifecycle with the retailer. This is
+ * critical for customer onboarding, privacy compliance, and personalized marketing
+ * in retail operations, supporting both regulatory requirements and customer experience.
+ * 
+ * Key retail aspects:
+ * - Manages customer onboarding and account verification processes
+ * - Ensures compliance with privacy regulations (GDPR, CCPA, CAN-SPAM)
+ * - Supports personalized marketing and communication strategies
+ * - Enables customer preference management and opt-out handling
+ * - Critical for customer service and support operations
+ * - Supports loyalty program enrollment and management
+ * - Enables audit trails for privacy and compliance reporting
+ */
+message PartyRegistrationState {
+  /*
+   * Registration status indicating the party's relationship maturity
+   * and verification level with the retailer.
+   */
+  enum Registration {
+    // Party exists in system but registration status is unknown
+    UNKNOWN_CONSUMER = 0;
+
+    // Party has registered but email/identity not yet verified
+    REGISTERED_NOT_VALIDATED = 1;
+
+    // Party has completed registration and verification process
+    REGISTERED_VALIDATED = 2;
+
+    // Party has not registered or has deregistered from services
+    UNREGISTERED = 3;
+  }
+
+  // Unique versioned identifier for this registration state record,
+  // enabling historical tracking of registration changes
+  api.common.pb.VersionID id = 1;
+
+  // Reference to the party this registration state applies to,
+  // linking registration status to the specific party
+  api.common.pb.VersionID  party_id = 2;
+
+  // Current registration status determining available services
+  // and communication permissions
+  Registration registration = 3;
+
+  // Date when this registration state became effective,
+  // supporting temporal tracking and compliance reporting
+  google.protobuf.Timestamp effective_date = 4;
+
+  // Date when this registration state expires or was superseded,
+  // enabling historical analysis and state transitions
+  google.protobuf.Timestamp expiration_date = 5;
+
+  // Privacy preference indicating party does not want phone calls,
+  // supporting telemarketing compliance and customer preferences
+  bool do_not_call = 6;
+
+  // Privacy preference indicating party does not want email communications,
+  // supporting email marketing compliance and customer preferences
+  bool do_not_email = 7;
+
+  // Privacy preference indicating party data should not be shared
+  // with third parties, supporting data privacy compliance
+  bool do_not_share = 8;
+
+  // Privacy preference indicating party does not want behavioral tracking,
+  // supporting digital privacy compliance and customer preferences
+  bool do_not_track = 9;
+}
+
+/*
+ * PartyRole identifies, names and describes different parts a Party may play
+ * when interacting with a retailer. PartyRole is an important concept because
+ * it enables one person or organization to play multiple parts (e.g. a worker
+ * who is also a customer) without having to replicate name, address and other
+ * contact data. This aligns with ARTS retail data model principles.
+ *
+ * Examples: Customer, Employee, Vendor, Supplier, Partner, Tax Authority, 
+ * Loyalty Member, Contractor, Consultant, Auditor, Regulator
+ *
+ * Key retail aspects:
+ * - Enables multi-role relationships without data duplication
+ * - Supports role-based access control and permissions
+ * - Critical for employee-customer scenarios in retail
+ * - Enables vendor and supplier relationship management
+ * - Supports regulatory and compliance role tracking
+ */
+message PartyRole {
+  // Unique versioned identifier for the party role definition,
+  // enabling historical tracking of role changes and evolution
+  api.common.pb.VersionID id = 1;
+
+  // Business name for the role, used in administrative interfaces
+  // and system configuration (e.g., "Customer", "Employee", "Vendor")
+  string name = 2;
+
+  // Detailed description of the role purpose, responsibilities,
+  // and business context for documentation and training
+  string description = 3;
+
+  // Role category for grouping related roles together in management
+  // interfaces and reporting (e.g., "Internal", "External", "Regulatory")
+  string category = 4;
+
+  // Indicates if this role is currently active and available for assignment
+  // to parties, supporting role lifecycle management
+  bool active = 5;
+
+  // Priority or precedence level when a party has multiple roles,
+  // determining which role takes precedence in business logic
+  int32 priority = 6;
+
+  // Permissions and capabilities associated with this role,
+  // supporting role-based access control systems
+  repeated string permissions = 7;
+
+  // Date when this role definition became effective,
+  // supporting temporal role management
+  google.protobuf.Timestamp effective_date = 8;
+
+  // Date when this role definition expires or was superseded,
+  // enabling historical role analysis
+  google.protobuf.Timestamp expiration_date = 9;
+
+  // Additional role-specific attributes and metadata,
+  // supporting extensibility and customization
+  map<string, string> additional_attributes = 100;
+}
+
+/*
+ * PartyIdentityDefinition defines the structure, validation rules, and metadata
+ * for different types of party identification documents and credentials. This
+ * supports regulatory compliance, identity verification, and customer onboarding
+ * processes in retail operations.
+ * 
+ * Examples: Driver's License, Passport, Social Security Number, Tax ID,
+ * Employee Badge, Loyalty Card, Credit Card, Bank Account
+ * 
+ * Key retail aspects:
+ * - Supports customer identity verification and KYC compliance
+ * - Enables secure customer onboarding and account creation
+ * - Critical for age verification and restricted product sales
+ * - Supports employee identification and access control
+ * - Enables fraud prevention and security monitoring
+ */
+message PartyIdentityDefinition {
+  // Unique versioned identifier for the identity definition,
+  // enabling historical tracking of definition changes
+  api.common.pb.VersionID id = 1;
+
+  // Business name for the identification type (e.g., "Driver's License",
+  // "Passport", "Employee ID"), used in user interfaces and documentation
+  string name = 2;
+
+  // Detailed description of the identification type, its purpose,
+  // and usage context for business users and system administrators
+  string description = 3;
+
+  // Category of identification for grouping and management
+  // (e.g., "Government", "Corporate", "Financial", "Retail")
+  string category = 4;
+
+  // Indicates if this identification type is currently active
+  // and available for use in identity verification processes
+  bool active = 5;
+
+  // Jurisdictional or geographical applicability constraints
+  // such as 'state', 'country', 'region' used to narrow applicability
+  map<string, string> jurisdiction_constraints = 6;
+
+  // Field-level definitions describing the structure and meaning
+  // of identification data (e.g., "Name": "The name on the ID")
+  map<string, string> field_definitions = 7;
+
+  // Validation rules and regular expressions for each field
+  // (e.g., "Name": "\\w+ \\w+", "Number": "\\d{9}")
+  map<string, string> field_validations = 8;
+
+  // Security level or trust rating for this identification type,
+  // supporting risk-based verification processes
+  int32 security_level = 9;
+
+  // Indicates if this identification type requires additional
+  // verification steps or documentation
+  bool requires_verification = 10;
+
+  // Retention period for identification data in compliance
+  // with privacy regulations and business policies
+  int32 retention_days = 11;
+
+  // Date when this definition became effective,
+  // supporting temporal definition management
+  google.protobuf.Timestamp effective_date = 12;
+
+  // Date when this definition expires or was superseded,
+  // enabling historical definition analysis
+  google.protobuf.Timestamp expiration_date = 13;
+
+  // Additional definition-specific attributes and metadata,
+  // supporting extensibility and customization
+  map<string, string> additional_attributes = 100;
+}
+
+/*
+ * PartyIdentification represents an official number, document, or credential
+ * that may be used to identify a Party. People and organizations have multiple
+ * forms of identification: Driver's License number, Passport number, Tax ID,
+ * Employee ID, Loyalty Card number, etc.
+ *
+ * IMPORTANT SECURITY NOTE: Sensitive identification such as social security numbers,
+ * credit/debit account numbers, or full financial account details SHOULD never be
+ * retained by a retailer except where explicitly permitted for tax, regulatory,
+ * or payment processing purposes, and must be handled with appropriate security controls.
+ *
+ * Key retail aspects:
+ * - Supports customer identity verification and fraud prevention
+ * - Enables age verification for restricted product purchases
+ * - Critical for employee access control and security
+ * - Supports loyalty program enrollment and management
+ * - Enables regulatory compliance and audit requirements
+ */
+message PartyIdentification {
+  // Unique versioned identifier for this identification record,
+  // enabling historical tracking of identification changes
+  api.common.pb.VersionID id = 1;
+
+  // Reference to the party this identification belongs to,
+  // linking identification to the specific party entity
+  api.common.pb.VersionID party_id = 2;
+
+  // Reference to the identification definition that defines the structure
+  // and validation rules for this identification type
+  api.common.pb.VersionID identity_definition_id = 3;
+
+  // The actual identification values as key-value pairs, structured
+  // according to the identity definition (e.g., "Number": "D123456789",
+  // "Name": "John Doe", "ExpirationDate": "2025-12-31")
+  map<string, string> values = 4;
+
+  // Verification status of this identification (verified, pending, failed, expired)
+  // supporting identity verification workflows and compliance
+  string verification_status = 5;
+
+  // Date when this identification was verified or last validated,
+  // supporting audit trails and compliance reporting
+  google.protobuf.Timestamp verification_date = 6;
+
+  // Identity of the user or system that performed the verification,
+  // supporting accountability and audit requirements
+  string verified_by = 7;
+
+  // Date when this identification record was created,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 8;
+
+  // Date when this identification expires or becomes invalid,
+  // enabling proactive renewal and compliance management
+  google.protobuf.Timestamp expiration_date = 9;
+
+  // Indicates if this identification is currently active and valid
+  // for use in verification processes
+  bool active = 10;
+
+  // Security classification or sensitivity level of this identification,
+  // supporting data protection and access control
+  string security_classification = 11;
+
+  // Additional identification-specific attributes and metadata,
+  // supporting extensibility and compliance requirements
+  map<string, string> additional_attributes = 100;
+}
+
+/*
+ * PartyRoleAssignment represents the temporal record of when a Party became
+ * (and ceased to be) related to the Retail Enterprise via a specific PartyRole.
+ * This entity captures the different varieties of relationships that may exist
+ * between the retailer and other organizations and individuals (parties) through
+ * time, supporting historical analysis and relationship lifecycle management.
+ *
+ * Key retail aspects:
+ * - Enables temporal tracking of party relationships and role changes
+ * - Supports role-based access control and permission management
+ * - Critical for employee lifecycle management and customer relationship tracking
+ * - Enables vendor and supplier relationship history and performance analysis
+ * - Supports compliance and audit requirements for relationship documentation
+ * - Facilitates business intelligence and relationship analytics
+ */
+message PartyRoleAssignment {
+  // Unique versioned identifier for this role assignment record,
+  // enabling historical tracking of assignment changes
+  api.common.pb.VersionID id = 1;
+
+  // Reference to the party that is being assigned the role,
+  // linking the assignment to the specific party entity
+  api.common.pb.VersionID party_id = 2;
+
+  // Reference to the party role being assigned to the party,
+  // defining the type of relationship and associated permissions
+  api.common.pb.VersionID party_role_id = 3;
+
+  // Current status of the party role assignment (active, inactive, suspended,
+  // pending, terminated), supporting lifecycle management and business rules
+  string status = 4;
+
+  // Role group or category identifier for grouping related roles together
+  // in management interfaces and reporting (e.g., "Customer", "Employee", "Vendor")
+  string role_group = 5;
+
+  // Date when this role assignment became effective,
+  // supporting temporal relationship management
+  google.protobuf.Timestamp effective_date = 6;
+
+  // Date when this role assignment expires or was terminated,
+  // enabling historical relationship analysis
+  google.protobuf.Timestamp expiration_date = 7;
+
+  // Identity of the user or system that created this assignment,
+  // supporting accountability and audit requirements
+  string assigned_by = 8;
+
+  // Identity of the user or system that terminated this assignment,
+  // supporting accountability and change tracking
+  string terminated_by = 9;
+
+  // Reason for the role assignment (hire, promotion, contract, partnership, etc.),
+  // providing business context for the relationship
+  string assignment_reason = 10;
+
+  // Reason for role termination (resignation, termination, contract end, etc.),
+  // supporting HR and business relationship management
+  string termination_reason = 11;
+
+  // Priority or precedence level for this role assignment when a party
+  // has multiple active roles, determining business logic precedence
+  int32 priority = 12;
+
+  // Additional assignment-specific attributes and metadata,
+  // supporting extensibility and business-specific requirements
+  map<string, string> additional_attributes = 100;
+}
+
+/*
+ * PartyRelationship represents the relationship between two parties, supporting
+ * complex business and personal relationships that are important for retail
+ * operations. This aligns with ARTS retail data model principles and OpenSchema.org
+ * relationship modeling for comprehensive party management.
+ *
+ * Examples: Parent-Child, Spouse, Business Partner, Subsidiary, Guarantor,
+ * Emergency Contact, Authorized Representative, Power of Attorney
+ *
+ * Key retail aspects:
+ * - Supports family account management and household relationships
+ * - Enables business partnership and corporate relationship tracking
+ * - Critical for emergency contacts and authorized representatives
+ * - Supports guarantor and co-signer relationships for credit
+ * - Enables compliance with privacy and consent management
+ * - Facilitates customer service and account management
+ */
+message PartyRelationship {
+  // Unique versioned identifier for this relationship record,
+  // enabling historical tracking of relationship changes
+  api.common.pb.VersionID id = 1;
+
+  // Reference to the primary party in the relationship (the "from" party),
+  // establishing the directional nature of the relationship
+  api.common.pb.VersionID from_party_id = 2;
+
+  // Reference to the secondary party in the relationship (the "to" party),
+  // completing the relationship connection
+  api.common.pb.VersionID to_party_id = 3;
+
+  // Type of relationship between the parties (parent, child, spouse, partner,
+  // subsidiary, guarantor, emergency_contact, etc.)
+  string relationship_type = 4;
+
+  // Category of relationship for grouping and management
+  // (e.g., "Family", "Business", "Legal", "Emergency")
+  string relationship_category = 5;
+
+  // Current status of the relationship (active, inactive, terminated, pending)
+  // supporting relationship lifecycle management
+  string status = 6;
+
+  // Date when this relationship became effective,
+  // supporting temporal relationship tracking
+  google.protobuf.Timestamp effective_date = 7;
+
+  // Date when this relationship ended or was terminated,
+  // enabling historical relationship analysis
+  google.protobuf.Timestamp expiration_date = 8;
+
+  // Indicates if this relationship is bidirectional (mutual) or unidirectional,
+  // supporting different types of relationship modeling
+  bool bidirectional = 9;
+
+  // Priority or importance level of this relationship for business processes
+  // (e.g., primary emergency contact vs. secondary)
+  int32 priority = 10;
+
+  // Permissions or authorities granted through this relationship
+  // (e.g., "account_access", "purchase_authorization", "information_sharing")
+  repeated string permissions = 11;
+
+  // Identity of the user or system that created this relationship,
+  // supporting accountability and audit requirements
+  string created_by = 12;
+
+  // Date when this relationship record was created,
+  // supporting audit trails and data governance
+  google.protobuf.Timestamp created_date = 13;
+
+  // Identity of the user or system that last modified this relationship,
+  // supporting change tracking and accountability
+  string modified_by = 14;
+
+  // Date when this relationship record was last modified,
+  // enabling change tracking and data freshness monitoring
+  google.protobuf.Timestamp modified_date = 15;
+
+  // Additional relationship-specific attributes and metadata,
+  // supporting extensibility and business-specific requirements
+  map<string, string> additional_attributes = 100;
+}
+
+/*
+ * A separate legal entity which conducts retail operations on behalf of the
+ * retail enterprise in some geographical location.
+ */
+message OperationalParty {
+  string id = 1;
+  string party_role_assignment_id = 2;
+}
+
+/*
+ * A record for tracking legal entity operations through time and changes
+ */
+message EffectiveParty {
+  string party_id = 1;
+  google.protobuf.Timestamp effective_date = 2;
+  google.protobuf.Timestamp expiration_date = 3;
+}
+
+/*
+ * A Household is an identifiable, named, defined group of Person party subtypes
+ * that make retail related decisions together. Traditionally households are
+ * tied to residential addresses and represented nuclear families. Today these
+ * qualifiers of household don't always apply so it is a more generic way to
+ * gather individual parties into a economic decision making unit.
+ *
+ * Households share some characteristics with Organization and Community - but
+ * they are important to retailers because they represent groups of parties that
+ * purchase and consume products and services as an economic decision making
+ * unit.  In ARTS we are distinguishing Households from Organizations (which are
+ * more typically representing commercial, public of charitable business
+ * establishments) and communities which may or may not have clearly delineated
+ * economic decision making capacity.
+ */
+message Household {
+  EffectiveParty id = 1;
+  string name = 2;
+  api.enums.currency.pb.Currency primary_currency = 3;
+  double household_income = 4;
+  reserved 5 to 99;
+  map<string, string> additional_dimensions = 100;
+}
+
+/*
+ * Person represents an individual party of interest to the retail store or
+ * retail enterprise. This aligns with ARTS retail data model and OpenSchema.org
+ * Person schema, providing comprehensive demographic and personal information
+ * for customer relationship management, personalization, and compliance.
+ * 
+ * Key retail aspects:
+ * - Foundation for customer personalization and experience management
+ * - Supports demographic analysis and customer segmentation
+ * - Enables age verification for restricted product purchases
+ * - Critical for loyalty program enrollment and management
+ * - Supports compliance with privacy and data protection regulations
+ * - Enables targeted marketing and customer analytics
+ */
+message Person {
+  // Unique versioned identifier with temporal tracking capabilities,
+  // enabling historical analysis of person information changes
+  EffectiveParty id = 1;
+
+  // Primary language preference for communication and customer experience,
+  // supporting internationalization and localized service delivery
+  api.enums.lang.pb.Language primary_language = 2;
+
+  // Personal title or honorific (Mr., Ms., Dr., Prof., etc.),
+  // supporting respectful and personalized customer communication
+  string title = 3;
+
+  // Person's first or given name as used in customer-facing interactions
+  // and official documentation
+  string first_name = 4;
+
+  // Classification of the first name type for cultural and linguistic accuracy
+  // (GivenName, OtherGivenName, FamilyName, Patronymic)
+  string first_name_type = 5;
+
+  // Person's middle name or names, supporting full name representation
+  // and identity verification requirements
+  string middle_name = 6;
+
+  // Classification of the middle name type for proper name handling
+  // and cultural sensitivity in customer interactions
+  string middle_name_type = 7;
+
+  // Person's last or family name as used in official documentation
+  // and customer identification processes
+  string last_name = 8;
+
+  // Classification of the last name type for cultural and linguistic accuracy
+  // in name handling and customer communication
+  string last_name_type = 9;
+
+  // Name suffix (Jr., Sr., III, etc.) for complete name representation
+  // and proper customer identification
+  string suffix = 10;
+
+  // Name formatted for sorting and alphabetical organization in customer
+  // databases and reporting systems
+  string sorting_name = 11;
+
+  // Name formatted for mailing and shipping labels, optimized for
+  // postal delivery and customer communication
+  string mailing_name = 12;
+
+  // Official legal name as it appears on government identification,
+  // supporting identity verification and compliance requirements
+  string official_name = 13;
+
+  // Date of birth for age verification, demographic analysis, and
+  // compliance with age-restricted product regulations
+  google.protobuf.Timestamp birth_date = 14;
+
+  // Place of birth for identity verification and demographic analysis,
+  // supporting comprehensive customer profiling
+  string birth_place = 15;
+
+  // Nationality or citizenship for compliance, tax reporting, and
+  // international customer service requirements
+  string nationality = 16;
+
+  // Country of residence for tax purposes, shipping, and regulatory
+  // compliance in international retail operations
+  string tax_residence_country = 17;
+
+  // Education level achieved for demographic analysis and targeted
+  // marketing campaigns
+  api.enums.party.pb.EducationLevel education_level = 18;
+
+  reserved 19 to 29;
+
+  // Gender identity for demographic analysis and personalized customer
+  // experience, handled with appropriate privacy considerations
+  api.enums.party.pb.Gender gender = 30;
+
+  // Preferred pronouns for respectful and inclusive customer communication
+  // and service delivery
+  api.enums.party.pb.Pronoun pronoun = 31;
+
+  // Marital status for demographic analysis, household modeling, and
+  // targeted marketing campaigns
+  api.enums.party.pb.MaritalStatus marital_status = 32;
+
+  // Current life stage for age-appropriate marketing and product
+  // recommendations
+  api.enums.party.pb.LifeStage life_stage = 33;
+
+  // Racial identity for demographic analysis and diversity reporting,
+  // handled with appropriate privacy and sensitivity
+  api.enums.party.pb.Race race = 34;
+
+  // Ethnic background for cultural sensitivity in customer service
+  // and targeted marketing approaches
+  api.enums.party.pb.Ethnicity ethnicity = 35;
+
+  // Religious group affiliation for cultural sensitivity and appropriate
+  // product recommendations and marketing
+  api.enums.party.pb.ReligionGroup religion_group = 36;
+
+  // Specific religious affiliation for detailed cultural understanding
+  // and respectful customer service
+  api.enums.party.pb.Religion religion = 37;
+
+  // Current employment status for credit assessment and demographic
+  // analysis in retail operations
+  api.enums.party.pb.EmploymentStatus employment_status = 38;
+
+  // Professional occupation for demographic segmentation and targeted
+  // marketing campaigns
+  api.enums.party.pb.Occupation occupation = 39;
+
+  // Preferred currency for pricing display and transaction processing
+  // in international retail operations
+  api.enums.currency.pb.Currency primary_currency = 40;
+
+  reserved 41 to 99;
+
+  // Annual income range for credit assessment, customer segmentation,
+  // and targeted marketing campaigns
+  string annual_income_range = 100;
+
+  // Disability or impairment information for accessibility accommodations
+  // and inclusive customer service
+  string disability_impairment_type = 101;
+
+  // Personality type classification for personalized customer experience
+  // and targeted product recommendations
+  string personality_type = 102;
+
+  // Lifestyle classification for targeted marketing and product
+  // recommendations based on customer preferences
+  string lifestyle_type = 103;
+
+  // Personal values classification for ethical and values-based
+  // marketing and product recommendations
+  string personal_value_type = 104;
+
+  // Values, attitudes, and lifestyle (VALS) classification for
+  // psychographic customer segmentation
+  string value_attitude_lifestyle_type = 105;
+
+  // Dietary preferences and restrictions for food retail and
+  // restaurant recommendations
+  string dietary_habit_type = 106;
+
+  // Consumer credit score for credit assessment and financial
+  // product recommendations
+  string consumer_credit_score = 107;
+
+  // Credit rating service provider name for credit score validation
+  // and financial assessment accuracy
+  string consumer_credit_rating_service_name = 108;
+
+  reserved 109 to 199;
+
+  // Additional person-specific attributes and demographic dimensions
+  // supporting extensibility and business-specific requirements
+  map<string, string> additional_dimensions = 200;
+}
+
+/*
+ * A company, association, institution, or other enterprise of interest to a
+ * retail store or retail enterprise.
+ *
+ * Note that because this is a RETAIL view of customer organizations is is more
+ * limited than a wholesale or manufacturing view of trading partner.  This
+ * treatment of Organization is not and should not be used as a substitute for
+ * B2B trading partner information.
+ */
+message Organization {
+  EffectiveParty id = 1;
+  string legal_name = 2;
+  string trade_name = 3;
+  string business_activity = 4;
+  api.enums.party.pb.BusinessClassification
+    business_classification = 5;
+  string jurisdiction = 6;
+  google.protobuf.Timestamp open_for_business = 7;
+  google.protobuf.Timestamp closed_for_business = 8;
+  google.protobuf.Timestamp incorporation_date = 9;
+  google.protobuf.Timestamp fiscal_year_end_date = 10;
+  api.enums.lang.pb.Language primary_language = 11;
+  repeated api.enums.lang.pb.Language supported_languages =
+    12;
+  api.enums.currency.pb.Currency primary_currency = 13;
+  double local_annual_revenue_amount = 14;
+  double global_annual_revenue_amount = 15;
+  int32 local_employee_count = 16;
+  int32 global_employee_count = 17;
+  reserved 18 to 49;
+  api.enums.party.pb.ReligionGroup religion_group = 50;
+  api.enums.party.pb.Religion religion = 51;
+  reserved 52 to 99;
+  bool bankruptcy = 100;
+  bool duns_information = 101;
+  reserved 102 to 199;
+  map<string, string> additional_dimensions = 200;
+}
+
+/*
+ * The D&B DUNS Number is a non-indicative, nine-digit number assigned to each
+ * business location in the D&B database having a unique, separate, and distinct
+ * operation, and is maintained solely by D&B. The D&B DUNS Number is used by
+ * industries and organizations around the world as a global standard for
+ * business identification and tracking. If you don`t have a D-U-N-S Number,
+ * you can get one for free through the SBS site.
+ */
+message OrganizationDUNSInformation {
+  EffectiveParty id = 1;
+  string duns_number = 2;
+  string duns_rating = 3;
+}
+
+/*
+ * Historic perspective of an organizations statuses of bankruptcy reputation.
+ */
+message OrganizationBankruptcy {
+  EffectiveParty id = 1;
+  google.protobuf.Timestamp date = 2;
+  google.protobuf.Timestamp emergence_date = 3;
+  api.enums.party.pb.Bankruptcy bankruptcy = 4;
+  string additional_information = 5;
+}
+
+/*
+ * Community represents a group of parties associated to a formal community
+ */
+message Community {
+  EffectiveParty id = 1;
+  string Name = 2;
+  api.enums.currency.pb.Currency primary_currency = 3;
+  reserved 4 to 99;
+  map<string, string> additional_dimensions = 100;
+}

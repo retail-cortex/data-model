@@ -1,0 +1,302 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.events.pb;
+
+// Go Lang Options
+option go_package = "github.com/GoogleCloudPlatform/retail-data-model/events/pb";
+
+// Java Options
+option java_package = "com.api.events.pb";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+import "api/bq_table.proto";
+
+// import "api/bq_field.proto";
+
+/*
+ * EventDescription defines the schema and processing rules for retail event types,
+ * enabling consistent event handling across all customer touchpoints and retail
+ * channels. This is critical for retail analytics, customer behavior analysis,
+ * and real-time personalization in omnichannel retail environments.
+ * 
+ * Key retail aspects:
+ * - Enables consistent customer behavior tracking across all channels
+ * - Supports real-time personalization and recommendation engines
+ * - Critical for retail analytics and business intelligence reporting
+ * - Enables customer journey analysis and conversion optimization
+ * - Supports inventory management through demand signal capture
+ * - Foundation for marketing attribution and campaign effectiveness
+ * - Enables fraud detection and security monitoring in retail transactions
+ * - Critical for customer experience optimization and A/B testing
+ * - Supports regulatory compliance and audit trail requirements
+ * 
+ * Common retail event types:
+ * - Customer interactions: page_view, product_view, search, cart_add, purchase
+ * - Inventory events: stock_update, price_change, product_availability
+ * - Marketing events: campaign_impression, email_open, promotion_redemption
+ * - Operational events: store_visit, employee_action, system_alert
+ * - Transaction events: payment_processed, order_fulfilled, return_initiated
+ */
+message EventDescription {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_event_descriptor";
+
+  // Business name for the event type, used for identification and
+  // categorization in retail analytics and reporting systems
+  string name = 1 [json_name = 'name'];
+
+  // Detailed description of the event purpose, context, and business
+  // significance for retail operations and analytics
+  string description = 2 [json_name = 'description'];
+  message TraitDescription {
+    // The name of the event
+    string name = 1 [json_name = 'name'];
+    // A description for the event to help discoverability.
+    string description = 2 [json_name = 'description'];
+    // A flag to enable machine interpretation the event type, if not numeric,
+    // then it's considered to be a string.
+    bool is_numeric = 3 [json_name = 'is_numeric'];
+    // A flag enabling machine interpolation of values, 1 or length.
+    bool is_list = 4 [json_name = 'is_list'];
+    // A flag intended for SRE validation.
+    bool is_accepted= 5 [json_name = 'is_accepted'];
+    // A flag that allows SRE to change or update a description. This is only
+    // true if is_numeric, is_list is changed.
+    bool user_override = 6 [json_name = 'user_override'];
+    //Reserved for internal use
+    reserved 7 to 99;
+  }
+  /*
+  A way for tracking change observations over time
+
+  Example: \sum_sample = 10  => \sum_change = 1 (initial truth)
+           20 samples => 11 changes (the truth has changed significantly and is
+           greater than the change_threshold commit percent, accept the changes as truth.
+           mark the traits as accepted
+   */
+  message SampleCount {
+    // The timestamp of the sample.
+    google.protobuf.Timestamp ts = 1 [json_name = 'ts'];
+    // The machine or human source identifier.
+    string producer_id = 2 [json_name = 'producer_id'];
+    // The total number of samples taken over a time period.
+    int64 sample_count = 3 [json_name = 'sample_count'];
+    // The total number of changes encountered during the sample set.
+    int64 change_count = 4 [json_name = 'change_count'];
+    //Reserved for internal use
+    reserved 5 to 99;
+  }
+
+  /*
+   A way to observe trait change states over time.
+   */
+  message TraitChangeRecord {
+    // The time a trait record changed.
+    google.protobuf.Timestamp ts = 1 [json_name = 'ts'];
+    // A record for the change state.
+    repeated TraitDescription trait_descriptions = 2 [json_name = 'trait_description'];
+    //Reserved for internal use
+    reserved 3 to 99;
+  }
+
+  /*
+  The total number of observed events
+   */
+  int64 total_observed = 3 [json_name = 'total_observed'];
+  /*
+   The percentage of change, when the definition should be updated.
+   */
+  float change_threshold_commit = 4 [json_name = 'change_threshold_commit'];
+  /*
+  The history of changes observed over time.
+   */
+  repeated SampleCount sample_counts = 5 [json_name = 'sample_count'];
+
+  // Always current, equivalent to HEAD
+  repeated TraitDescription trait_descriptions = 6 [json_name = 'trait_descriptions'];
+
+  // Trait changes over time.
+  repeated TraitChangeRecord trait_change_records = 7 [json_name = 'trait_change_records'];
+
+  //Reserved for internal use
+  reserved 8 to 99;
+}
+
+/*
+ * EventRecord represents the persistent storage format for retail events,
+ * capturing customer interactions, operational activities, and business
+ * transactions across all retail channels. This is the foundation for retail
+ * analytics, customer behavior analysis, and real-time decision making in
+ * modern omnichannel retail environments.
+ * 
+ * Key retail aspects:
+ * - Foundation for customer journey analysis and conversion optimization
+ * - Enables real-time personalization and recommendation systems
+ * - Critical for retail analytics and business intelligence reporting
+ * - Supports inventory management through demand signal analysis
+ * - Enables marketing attribution and campaign effectiveness measurement
+ * - Foundation for fraud detection and security monitoring
+ * - Critical for customer experience optimization and A/B testing
+ * - Supports regulatory compliance and audit trail requirements
+ * - Enables operational efficiency analysis and process optimization
+ * 
+ * Event timing and performance monitoring:
+ * - Emit timestamp: When the retail event actually occurred
+ * - Observe timestamp: When the event was captured by retail systems
+ * - Processing latency: Critical for real-time retail applications
+ * - Event correlation: Linking related retail activities and customer actions
+ * 
+ * Common retail event examples:
+ * - Customer: product_view, cart_add, purchase_complete, account_created
+ * - Inventory: stock_level_change, price_update, product_discontinued
+ * - Marketing: email_sent, promotion_activated, campaign_impression
+ * - Operations: store_opened, employee_login, system_maintenance
+ */
+message EventRecord {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_event_record";
+
+  // Unique transaction identifier for this event record, enabling precise
+  // event tracking and correlation across retail systems and analytics
+  string tx_id = 1 [json_name = 'tx_id'];
+
+  // Timestamp when the retail event was originally emitted by the source
+  // system, representing the actual time of the business activity
+  google.protobuf.Timestamp emit_ts = 2 [json_name = 'emit_timestamp'];
+
+  // Timestamp when the event was observed and recorded by the retail
+  // event processing system, enabling latency monitoring and performance analysis
+  google.protobuf.Timestamp observe_ts = 3 [json_name = 'observe_timestamp'];
+
+  // Business name of the retail event type, enabling categorization
+  // and processing logic for different types of retail activities
+  string name = 4 [json_name = 'name'];
+
+  // Client-generated unique identifier for this specific event instance,
+  // supporting event deduplication and correlation across retail systems
+  string event_id = 5 [json_name = 'event_id'];
+
+  // Parent event identifier enabling hierarchical event relationships
+  // and complex retail workflow tracking across customer journeys
+  string event_parent_id = 6 [json_name = 'event_parent_id'];
+
+  // A trait is unique attribute of an event having either a set of strings,
+  // or a set of numbers captured by the name.
+  message Trait {
+    // The name of the trait
+    string name = 1 [json_name = 'name'];
+    // A repeatable number
+    message Number {
+      repeated double value = 1 [json_name = 'v'];
+    }
+    // A repeatable string
+    message String {
+      repeated string value = 1 [json_name = 'v'];
+    }
+    // An or clause noting only string or number applies
+    oneof values {
+      // A set of one or more number values
+      Number numeric = 2 [json_name = 'num'];
+      // A set of one or more string values
+      String string = 3 [json_name = 'str'];
+      // A dynamic structure
+      google.protobuf.Struct object = 4 [json_name = 'obj'];
+    }
+  }
+  // A list of traits observed by the event.
+  repeated Trait traits = 7 [json_name = 'traits'];
+  // Reserved for internal use
+  reserved 8 to 99;
+}
+
+/*
+ * Event represents a transport-level record for capturing real-time retail
+ * activities and customer interactions across all channels. This is the primary
+ * mechanism for collecting behavioral data, operational events, and business
+ * transactions that drive retail analytics, personalization, and decision-making.
+ * 
+ * Key retail aspects:
+ * - Enables real-time customer behavior capture across all touchpoints
+ * - Supports immediate personalization and recommendation responses
+ * - Critical for inventory management through real-time demand signals
+ * - Enables marketing automation and campaign trigger mechanisms
+ * - Foundation for fraud detection and security monitoring
+ * - Supports customer experience optimization through immediate feedback
+ * - Enables operational efficiency through real-time process monitoring
+ * - Critical for omnichannel customer journey tracking and analysis
+ * 
+ * Event transport characteristics:
+ * - Lightweight: Optimized for high-volume, real-time transmission
+ * - Flexible: Trait-based structure adapts to diverse retail event types
+ * - Correlatable: Parent-child relationships enable complex workflow tracking
+ * - Timestamped: Client-generated timestamps preserve event timing accuracy
+ * 
+ * Common retail event examples:
+ * - Customer journey: page_view, product_click, cart_add, checkout_start, purchase
+ * - Inventory: stock_check, price_view, availability_request, reorder_trigger
+ * - Marketing: email_open, ad_click, coupon_view, promotion_apply
+ * - Operations: store_entry, employee_action, system_alert, maintenance_event
+ */
+message Event {
+  // Client-generated timestamp when the retail event occurred, preserving
+  // the precise timing of customer interactions and business activities
+  google.protobuf.Timestamp created = 1 [json_name = 'created'];
+
+  // Structured name of the retail event following naming conventions
+  // (e.g., cart.add, product.view, checkout.complete, inventory.update)
+  string name = 2 [json_name = 'name'];
+
+  // Client-generated unique identifier for this event instance,
+  // enabling event deduplication and correlation in retail systems
+  string event_id = 3 [json_name = 'event_id'];
+
+  // Parent event identifier for creating hierarchical event relationships
+  // and tracking complex retail workflows and customer journey sequences
+  string event_parent_id = 4 [json_name = 'event_parent_id'];
+
+  /*
+   * Trait represents a key-value attribute of a retail event, capturing
+   * specific details about customer actions, product interactions, or
+   * operational activities. This flexible structure adapts to diverse
+   * retail event types while maintaining consistent processing capabilities.
+   * 
+   * Common retail trait examples:
+   * - Product traits: sku, category, price, brand, inventory_level
+   * - Customer traits: customer_id, session_id, device_type, location
+   * - Transaction traits: order_id, payment_method, discount_applied, total_amount
+   * - Marketing traits: campaign_id, referrer, utm_source, promotion_code
+   * - Operational traits: store_id, employee_id, register_id, department
+   */
+  message Trait {
+    // Name of the trait identifying the specific retail attribute
+    // being captured (e.g., sku, quantity, customer_id, store_location)
+    string name = 1 [json_name = 'name'];
+
+    // Values associated with this trait, supporting multiple values
+    // for complex retail scenarios and flexible data capture
+    repeated string values = 2 [json_name = 'values'];
+  }
+
+  // Collection of traits providing detailed context and attributes
+  // for this retail event, enabling rich analytics and personalization
+  repeated Trait traits = 5  [json_name = 'traits'];
+
+  // Reserved for internal use
+  reserved 6 to 99;
+}

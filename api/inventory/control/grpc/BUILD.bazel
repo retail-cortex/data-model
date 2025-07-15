@@ -1,0 +1,12 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "grpc_proto",
+    srcs = ["inventory_control_service.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//api/inventory/control/pb:pb_proto",
+        "@googleapis//google/api:annotations_proto",
+        "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
+    ],
+)

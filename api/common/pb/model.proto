@@ -1,0 +1,476 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.common.pb;
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/api/common/pb";
+
+// Java Options
+option java_package = "com.github.retailcortext.api.common.pb";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+import "google/protobuf/struct.proto";
+
+import "api/bq_field.proto";
+
+import "api/bq_table.proto";
+
+import "api/enums/locale/pb/locale.proto";
+
+import "api/enums/currency/pb/currency.proto";
+
+import "api/enums/uom/pb/uom.proto";
+
+
+/*******************************************************************************
+ * Common Model Objects
+ *******************************************************************************/
+
+/*
+ * AuditRecord provides comprehensive audit trail capabilities for retail operations,
+ * tracking all data modifications and access patterns across the retail enterprise.
+ * This is critical for regulatory compliance, security monitoring, and operational
+ * transparency in retail environments where data integrity and traceability are essential.
+ * 
+ * Key retail aspects:
+ * - Supports SOX compliance and financial audit requirements
+ * - Enables fraud detection and security incident investigation
+ * - Provides data lineage for inventory, pricing, and customer data changes
+ * - Supports regulatory compliance (PCI DSS, GDPR, etc.)
+ * - Enables operational troubleshooting and root cause analysis
+ * - Critical for multi-user retail systems with role-based access control
+ */
+message AuditRecord {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_audit";
+
+  // Unique identifier for this audit event, enabling precise tracking
+  // and correlation of audit records across retail systems
+  string id = 1 [json_name = "id", (gen_bq_schema.bigquery).require = true];
+
+  // Timestamp when the audited action occurred, critical for chronological
+  // analysis and compliance reporting in retail operations
+  google.protobuf.Timestamp created = 2 [json_name = 'created', (gen_bq_schema.bigquery).require = true];
+
+  // Type of action performed (CREATE, READ, UPDATE, DELETE), enabling
+  // classification of data access patterns and change management
+  string action = 3 [json_name = "action", (gen_bq_schema.bigquery).require = true];
+
+  // Business context of the action including record type and service operation,
+  // providing semantic meaning to audit events in retail workflows
+  string context = 4 [json_name = "context", (gen_bq_schema.bigquery).require = true];
+
+  // Identity of the user or system that performed the action, supporting
+  // accountability and access control in retail environments
+  string principal = 5 [json_name = "principal"];
+
+  // Additional contextual information including source system, session details,
+  // and business-specific metadata for comprehensive audit analysis
+  map<string, string> context_variables = 6 [json_name = "context_variables"];
+}
+
+message AuditRecordSearchRequest {
+  AuditRecord criteria = 1 [json_name = "criteria"];
+  TimeBoundRequest bounds = 2 [json_name = "time_bounds"];
+  string action = 3 [json_name = "action"];
+  string principal = 4 [json_name = "principal"];
+}
+
+
+/*
+ * NamedMeasure provides standardized measurement capabilities essential for retail
+ * operations including product specifications, store layout, inventory management,
+ * and logistics. This supports consistent measurement handling across all retail
+ * processes from merchandising to fulfillment.
+ * 
+ * Key retail aspects:
+ * - Product dimensions for packaging, shipping, and display planning
+ * - Store space management and planogram optimization
+ * - Inventory capacity planning and warehouse management
+ * - Shipping calculations and logistics optimization
+ * - Compliance with product labeling and regulatory requirements
+ * - Support for international markets with different measurement systems
+ * 
+ * Examples:
+ * - Product: length (12.5 inches), weight (2.3 lbs), volume (500ml)
+ * - Store: total square feet (15,000 sq ft), shelf space (200 linear ft)
+ * - Packaging: case pack count (24 units), pallet capacity (48 cases)
+ */
+message NamedMeasure {
+  // Descriptive name for the measurement type, providing business context
+  // for the measurement (e.g., "Product Length", "Shelf Height", "Case Weight")
+  string name = 1 [json_name = "name"];
+
+  // Unit of measure specification with type-safe measurement categories
+  // ensuring proper handling of different measurement types in retail systems
+  oneof uom {
+    // Area measurements for store space, shelf allocation, and product footprint
+    api.enums.uom.pb.Area area = 2 [json_name = "area"];
+
+    // Capacity measurements for storage, containers, and volume-based products
+    api.enums.uom.pb.Capacity capacity = 3 [json_name = "capacity"];
+
+    // Distance measurements for product dimensions and spatial planning
+    api.enums.uom.pb.Distance distance = 4 [json_name = "distance"];
+
+    // Weight measurements for shipping, handling, and product specifications
+    api.enums.uom.pb.Weight weight = 5 [json_name = "weight"];
+
+    // Count measurements for inventory quantities and packaging units
+    api.enums.uom.pb.Count count = 6 [json_name = "count"];
+
+    // Packaging measurements for case packs, pallets, and shipping units
+    api.enums.uom.pb.Packaging package = 7 [json_name = "package"];
+
+    // Time measurements for shelf life, lead times, and operational metrics
+    api.enums.uom.pb.Time time = 8 [json_name = "time"];
+
+    // Clothing-specific measurements for apparel sizing and fit
+    api.enums.uom.pb.Clothing clothing = 9 [json_name = "clothing"];
+  }
+  reserved 10 to 19;
+
+  // Numeric value of the measurement, providing the quantitative data
+  // for retail calculations and business logic
+  double value = 20 [json_name = "value"];
+}
+
+// VersionID is an identifier used for data objects that change over time.
+// These objects create historical and future views of the state of an object.
+// For example, a product may have a future effective date staged to reduce
+// load on runtime systems.
+message VersionID {
+  // Surrogate key, used by data source, not the business key.
+  string id = 1 [json_name = 'id', (gen_bq_schema.bigquery).require = true];
+  // The version identifier, where the greatest value is the latest
+  int64 version = 2 [json_name = 'version', (gen_bq_schema.bigquery).require = true];
+  // The date the version was created
+  google.protobuf.Timestamp created = 3 [json_name = 'created', (gen_bq_schema.bigquery).require = true];
+  // The date the product version became effective, may be a future date
+  google.protobuf.Timestamp effective = 4 [json_name = 'effective', (gen_bq_schema.bigquery).require = true];
+}
+
+/*
+ * BusinessKey is a named key with one or more values applied to any domain
+ * object. Examples: sku: <value>;
+ * A business key MAY be used to create a UUID5 (domain + UUID3(string)) identifier.
+ * This practice is recommended to create an enforceable key value.
+ */
+message BusinessKey {
+  string name = 1 [json_name = 'name', (gen_bq_schema.bigquery).require = true];
+  string value = 2 [json_name = 'value',  (gen_bq_schema.bigquery).require = true];
+}
+
+
+/*
+ * Descriptive text associated to a give Locale
+ */
+message I18nText {
+  // The locale of the text, such as EN_US (238)
+  api.enums.locale.pb.Locale locale = 1 [json_name = 'locale', (gen_bq_schema.bigquery).require = true];
+  // The value of the text.
+  string value = 2 [json_name = 'value', (gen_bq_schema.bigquery).require = true];
+}
+
+/*
+ * Descriptive text associated to a give Locale
+ */
+message I18nResource {
+  // The locale of the text, such as EN_US (238)
+  api.enums.locale.pb.Locale locale = 1 [json_name = 'locale', (gen_bq_schema.bigquery).require = true];
+  // The value of the text.
+  string url = 2 [json_name = 'url', (gen_bq_schema.bigquery).require = true];
+}
+
+/*
+ * Image
+ */
+message Image {
+  // The URL of the image
+  string url = 1 [json_name = 'url', (gen_bq_schema.bigquery).require = true];
+  // The alternate text for the image
+  string alt = 2 [json_name = 'alt'];
+  // The height of the image
+  int32 height = 3 [json_name = 'h'];
+  // The width of the image
+  int32 width = 4 [json_name = 'w'];
+  // An internal string classifying the image such as Ad, Banner,
+  // Thumbnail, Small, Medium, Large, Primary, Secondary, etc.
+  string classifier = 5 [json_name = 'classifier'];
+  // Frame is used as an additional classifier to describe
+  // for describing TOP, LEFT, RIGHT, BOTTOM, FRONT, BACK or their composites
+  string frame = 6 [json_name = "frame"];
+}
+
+// I18nImage is used to hold images for specific languages
+message I18nImage {
+  api.enums.locale.pb.Locale locale = 1 [json_name = 'locale', (gen_bq_schema.bigquery).require = true];
+  repeated Image images = 2 [json_name = 'images'];
+}
+
+/*
+ * Number is used to remove any language rounding issue from the dataset.
+ */
+message Number {
+  int32 whole = 1 [json_name = 'whole', (gen_bq_schema.bigquery).require = true];
+  int32 decimal = 2 [json_name = 'decimal', (gen_bq_schema.bigquery).require = true];
+}
+
+/*
+ * Rounding rule holds logic for how to treat a number
+ */
+message RoundingRule {
+  int32 relevant_decimal = 1 [json_name = 'relevant_decimal', (gen_bq_schema.bigquery).require = true];
+  bool trim_insignificant_digits = 2 [json_name = 'trim_insignificant_digits', (gen_bq_schema.bigquery).require = true];
+  bool round_half_up = 3 [json_name = 'round_half_up', (gen_bq_schema.bigquery).require = true];
+}
+
+/*
+ * Money is an extension of number
+ */
+message Currency {
+  api.enums.currency.pb.Currency code = 1 [json_name = 'currency', (gen_bq_schema.bigquery).require = true];
+  Number value = 2 [json_name = 'value', (gen_bq_schema.bigquery).require = true];
+  RoundingRule rounding_rule = 3 [json_name = 'rounding_rule', (gen_bq_schema.bigquery).require = true];
+}
+
+/*******************************************************************************
+ * Common objects that MAY be backed by a Database
+ *******************************************************************************/
+
+/*
+ * ISO 3166-1 Country
+ */
+message Country {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_country";
+  // A surrogate key for the country
+  string id = 1[json_name = 'id', (gen_bq_schema.bigquery).require = true];
+  // The common name of the country
+  string name = 2 [json_name = 'name', (gen_bq_schema.bigquery).require = true];
+  // The two letter code of the country
+  string alpha2 = 3 [json_name = 'alpha2', (gen_bq_schema.bigquery).require = true];
+  // The three letter code of the country
+  string alpha3 = 4 [json_name = 'alpha3', (gen_bq_schema.bigquery).require = true];
+  // The Numeric code for the region
+  string code = 5 [json_name = 'code', (gen_bq_schema.bigquery).require = true];
+  // The 3166-2 two letter alpha
+  string iso2 = 6 [json_name = 'iso2', (gen_bq_schema.bigquery).require = true];
+  // The region name
+  string region = 7 [json_name = 'region'];
+  // The sub region name
+  string sub_region = 8 [json_name = 'sub_region'];
+  // The intermediate region name
+  string intermediate_region = 9 [json_name = 'intermediate_region'];
+  // The region code
+  string region_code = 10 [json_name = 'region_code'];
+  // The sub region code
+  string sub_region_code = 11 [json_name = 'sub_region_code'];
+  // The intermediate region code
+  string intermediate_region_code = 12 [json_name = 'intermediate_region_code'];
+}
+
+/*
+ * ISO 3166-2 Country Subdivisions
+ */
+message CountrySubdivision {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_country_subdivision";
+  // The id of the country sub division
+  string id = 1 [json_name = 'id', (gen_bq_schema.bigquery).require = true];
+  // The two digit code for the country
+  string country_code = 2 [json_name = 'country_code', (gen_bq_schema.bigquery).require = true];
+  // The country subdivision full name
+  string subdivision_name = 3 [json_name = 'subdivision_name', (gen_bq_schema.bigquery).require = true];
+  // The numeric code, represented as a string as it's 0(zero) left padded and
+  // three characters long
+  string code = 4 [json_name = 'code', (gen_bq_schema.bigquery).require = true];
+}
+
+/*
+ * International Civil Aviation Organization Codes
+ * Used for weather station look-up.
+ */
+message ICAOCode {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_icoa_codes";
+  // The surrogate ID for the code
+  string id = 1 [json_name = 'id', (gen_bq_schema.bigquery).require = true];
+  // The iso 3166-1 country code
+  string country_id = 2 [json_name = 'country_code', (gen_bq_schema.bigquery).require = true];
+  // The iso 3166-2 subdivision code
+  string country_subdivision_id = 3 [json_name = 'country_subdivision_id'];
+  // The name of the location
+  string location_name = 4 [json_name = 'location_name', (gen_bq_schema.bigquery).require = true];
+  // The individual station name
+  string station_name = 5 [json_name = 'station_name', (gen_bq_schema.bigquery).require = true];
+  // The type of station
+  string type = 6 [json_name = 'type'];
+  // The station key identifier
+  string station_key = 7 [json_name = 'station_key'];
+  // The status of the station
+  string status = 8 [json_name = 'status'];
+  // The icao value
+  string icao = 9 [json_name = 'icao', (gen_bq_schema.bigquery).require = true];
+  // The national id
+  string national_id = 10 [json_name = 'national_id', (gen_bq_schema.bigquery).require = true];
+  // The WMO code
+  string wmo = 11 [json_name = 'wmo'];
+  // The GHCN code
+  string ghcn = 12 [json_name = 'ghcn'];
+  // Additional special indicators
+  string special = 13 [json_name = 'special'];
+  // The latitude of the station
+  string latitude = 14 [json_name = 'latitude', (gen_bq_schema.bigquery).require = true];
+  // The longitude of the station
+  string longitude = 15 [json_name = 'longitude', (gen_bq_schema.bigquery).require = true];
+  // The elevation of the station in meters
+  string elevation_in_meters = 16 [json_name = 'elevation_in_meters'];
+  // The timezone code of the station
+  string time_zone = 17 [json_name = 'time_zone'];
+}
+
+/*
+ * Associative entity denoting how a Party (in a particular role) may be
+ * contacted for a particular purpose.
+ */
+message Contact {
+  message SocialMediaNetworkIdentity {
+    string platform = 1 [json_name = 'platform'];
+    string platform_id = 2 [json_name = 'platform_id'];
+  }
+  enum ContactMethod {
+    OTHER = 0;
+    BUSINESS = 1;
+    PERSONAL = 3;
+    THIRD_PARTY = 4;
+  }
+  string id = 1 [json_name = 'id', (gen_bq_schema.bigquery).require = true];
+  /*
+   * Retailer defined reasons for contacting Parties and Sites. Suggested values
+   * include: Accounts, Deliveries, Legal: Examples include: LEGAL, BILLING,
+   * SHIP_TO, OTHER, SALES_ANALYSIS, GEOLOCATION_ANALYSIS
+   */
+  string contact_purpose = 2 [json_name = 'contact_purpose', (gen_bq_schema.bigquery).require = true];
+  // The contact method type, this may be internally assigned, or
+  // a code from the ContactType Enum.
+  ContactMethod contact_method = 3 [json_name = 'contact_method', (gen_bq_schema.bigquery).require = true];
+  // The effective time of the ID
+  google.protobuf.Timestamp effective_date = 4 [json_name = 'effective_date', (gen_bq_schema.bigquery).require = true];
+  // When this instance of information expired as a new record was written.
+  google.protobuf.Timestamp expiration_date = 5 [json_name = 'expiration_date'];
+  // A link to an Address
+  Address address = 6 [json_name = 'address'];
+  // A link to an Email Address
+  string email_address = 7 [json_name = 'email_address'];
+  // A link to a Telephone
+  string telephone = 8 [json_name = 'telephone'];
+  // A link to a Web Address
+  string website = 9 [json_name = 'website'];
+  // A link to a social media ID
+  repeated SocialMediaNetworkIdentity social_network_id = 10 [json_name = 'social_media_network_id'];
+  // A status code, retailer assigned
+  string status = 11 [json_name = 'status'];
+}
+
+
+/*
+ * A physical address for a Site or Contact Method
+ */
+message Address {
+  // The geo segment identifier of the address, this MAY be retailer specific.
+  // It MAY also be a geo region ID from the Geo Enums
+  string geo_segment_id = 1 [json_name = 'geo_segment_id', (gen_bq_schema.bigquery).require = true];
+  // The first line of a physical address
+  string line_1 = 2 [json_name = 'line_1', (gen_bq_schema.bigquery).require = true];
+  // The second line of a physical address
+  string line_2 = 3 [json_name = 'line_2'];
+  // The third line of a physical address
+  string line_3 = 4 [json_name = 'line_3'];
+  // The fourth line of a physical address
+  string line_4 = 5 [json_name = 'line_4'];
+  // The full name of the city
+  string city = 6 [json_name = 'city', (gen_bq_schema.bigquery).require = true];
+  // The territory or state of the physical address
+  string territory = 7 [json_name = 'territory', (gen_bq_schema.bigquery).require = true];
+  // The postal assignment code 5 or 10
+  string postal_code = 8 [json_name = 'postal_code', (gen_bq_schema.bigquery).require = true];
+  // The ISO subdivision code, this is a world specific identifier
+  // such as: "WORLD-AMERICAS-NORTH_AMERICA-USA-NY" denoting New York City
+  // in the United States.
+  string iso_3166_2_country_sub_division_code = 9 [json_name = 'country_subdivision_code', (gen_bq_schema.bigquery).require = true];
+}
+
+/******************************************************************************
+ * Data Transfer Objects, specifically used for transport layer integrity.
+ ******************************************************************************/
+
+// A common transfer object for requesting information by ID.
+message IDRequest {
+  // The ID to request, generally intended to by a UUID.
+  string id = 1 [json_name = 'id'];
+}
+
+message VersionIDRequest {
+  string id = 1 [json_name = 'id'];
+  int32 version = 2 [json_name = 'version'];
+}
+
+message VersionIDEffectiveRequest {
+  VersionIDRequest id = 1 [json_name = 'id'];
+  // The start time of the span.
+  google.protobuf.Timestamp on_or_before = 2 [json_name = 'on_or_before'];
+}
+
+// A common transfer object for requesting information by a span of time.
+message TimeBoundRequest {
+  // The start time of the span.
+  google.protobuf.Timestamp start_date = 1 [json_name = 'start_date'];
+  // The end time of the span.
+  google.protobuf.Timestamp end_date = 2 [json_name = 'end_date'];
+}
+
+// A common business key request
+message BusinessKeyRequest {
+  repeated BusinessKey business_keys = 1 [json_name = 'business_keys'];
+}
+
+// A transfer object suitable for stream and non-stream error
+message StatusResponse {
+  enum Type {
+    SUCCESS = 0;
+    ERROR = 1;
+    CREATED = 2;
+    UPDATED = 3;
+    DELETED = 4;
+  }
+  google.protobuf.Timestamp ts = 1 [json_name = 'timestamp'];
+  Type type = 2 [json_name = 'type'];
+  string id = 3 [json_name = 'id'];
+  string message = 4 [json_name = 'message'];
+  // The original payload is used in the error response for clients that MUST
+  // implement a backoff / replay. This is consistent with Cloud SLOs
+  google.protobuf.Struct payload = 5 [json_name = 'payload'];
+}
+
+message HealthCheckResponse {
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;  // Used only by the Watch method.
+  }
+  ServingStatus status = 1 [json_name = 'status'];
+}

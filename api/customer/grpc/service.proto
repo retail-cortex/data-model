@@ -1,0 +1,750 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.customer.grpc;
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/api/customer/grpc";
+
+// Java Options
+option java_package = "com.github.retailcortext.api.customer.grpc";
+option java_multiple_files = true;
+
+import "api/customer/pb/model.proto";
+import "api/common/pb/model.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+/*
+ * Consumers - Defines the CRUD operations for consumer management in retail operations.
+ * Consumers represent individuals or entities that purchase or potentially purchase
+ * products and services from the retailer, forming the foundation of customer
+ * relationship management across all channels and touchpoints.
+ */
+service Consumers {
+  /*
+   * List - Provides a stream of consumers for administrative and analytical purposes.
+   * Supports customer acquisition analysis and relationship management workflows.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.Consumer) {
+    option (google.api.http) = {
+      get: "/consumers"
+    };
+  }
+
+  /*
+   * FindById - Finds a consumer by their unique versioned identifier.
+   * Essential for customer service, personalization, and relationship management.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.Consumer) {
+    option (google.api.http) = {
+      get: "/consumers/{id.id}"
+    };
+  }
+
+  /*
+   * FindByBusinessKey - Finds consumers by business identifiers such as
+   * customer numbers, loyalty card numbers, or external system identifiers.
+   */
+  rpc FindByBusinessKey(api.common.pb.BusinessKeyRequest)
+    returns (stream api.customer.pb.Consumer) {
+    option (google.api.http) = {
+      post: "/consumers/search/business_key"
+      body: "*"
+    };
+  }
+
+  /*
+   * Create - Adds a new consumer to the retail system.
+   * Supports customer acquisition and onboarding processes.
+   */
+  rpc Create(api.customer.pb.Consumer)
+    returns (api.customer.pb.Consumer) {
+    option (google.api.http) = {
+      post: "/consumers"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates an existing consumer record.
+   * Supports customer profile management and data maintenance.
+   */
+  rpc Update(api.customer.pb.Consumer)
+    returns (api.customer.pb.Consumer) {
+    option (google.api.http) = {
+      put: "/consumers"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes a consumer from the system following data retention policies.
+   * Supports GDPR compliance and customer data management requirements.
+   */
+  rpc Delete(api.customer.pb.Consumer)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/consumers"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * ConsumerConversionStates - Manages consumer progression through the retail
+ * customer acquisition and lifecycle funnel. Essential for marketing effectiveness,
+ * customer acquisition cost analysis, and conversion optimization across all channels.
+ */
+service ConsumerConversionStates {
+  /*
+   * List - Provides a stream of conversion states for funnel analysis
+   * and marketing optimization workflows.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.ConsumerConversionState) {
+    option (google.api.http) = {
+      get: "/consumer_conversion_states"
+    };
+  }
+
+  /*
+   * FindById - Finds a conversion state by its unique versioned identifier.
+   * Supports conversion tracking and customer journey analysis.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.ConsumerConversionState) {
+    option (google.api.http) = {
+      get: "/consumer_conversion_states/{id.id}"
+    };
+  }
+
+  /*
+   * FindByConsumer - Finds conversion states for a specific consumer.
+   * Essential for tracking individual customer journey progression.
+   */
+  rpc FindByConsumer(api.common.pb.VersionIDRequest)
+    returns (stream api.customer.pb.ConsumerConversionState) {
+    option (google.api.http) = {
+      get: "/consumer_conversion_states/consumer/{id.id}"
+    };
+  }
+
+  /*
+   * Create - Records a new conversion state for customer journey tracking.
+   * Supports marketing funnel analysis and conversion optimization.
+   */
+  rpc Create(api.customer.pb.ConsumerConversionState)
+    returns (api.customer.pb.ConsumerConversionState) {
+    option (google.api.http) = {
+      post: "/consumer_conversion_states"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates an existing conversion state record.
+   * Supports conversion state transitions and journey management.
+   */
+  rpc Update(api.customer.pb.ConsumerConversionState)
+    returns (api.customer.pb.ConsumerConversionState) {
+    option (google.api.http) = {
+      put: "/consumer_conversion_states"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes a conversion state record following data retention policies.
+   */
+  rpc Delete(api.customer.pb.ConsumerConversionState)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/consumer_conversion_states"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * Visitors - Manages individuals or automated agents that access retail touchpoints
+ * but have not yet been identified or converted. Critical for customer acquisition
+ * funnel measurement and conversion rate optimization across digital and physical channels.
+ */
+service Visitors {
+  /*
+   * List - Provides a stream of visitors for traffic analysis
+   * and conversion optimization workflows.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.Visitor) {
+    option (google.api.http) = {
+      get: "/visitors"
+    };
+  }
+
+  /*
+   * FindById - Finds a visitor by their unique versioned identifier.
+   * Supports visitor behavior tracking and conversion analysis.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.Visitor) {
+    option (google.api.http) = {
+      get: "/visitors/{id.id}"
+    };
+  }
+
+  /*
+   * FindByEmail - Finds visitors by email address for progressive
+   * customer engagement and remarketing campaigns.
+   */
+  rpc FindByEmail(api.common.pb.IDRequest)
+    returns (stream api.customer.pb.Visitor) {
+    option (google.api.http) = {
+      get: "/visitors/email/{id}"
+    };
+  }
+
+  /*
+   * Create - Records a new visitor interaction for tracking and analysis.
+   * Supports customer acquisition funnel measurement and optimization.
+   */
+  rpc Create(api.customer.pb.Visitor)
+    returns (api.customer.pb.Visitor) {
+    option (google.api.http) = {
+      post: "/visitors"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates visitor information and interaction data.
+   * Supports visitor behavior tracking and session management.
+   */
+  rpc Update(api.customer.pb.Visitor)
+    returns (api.customer.pb.Visitor) {
+    option (google.api.http) = {
+      put: "/visitors"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes visitor records following data retention policies.
+   * Supports privacy compliance and data management requirements.
+   */
+  rpc Delete(api.customer.pb.Visitor)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/visitors"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * Customers - Manages consumers who have completed at least one purchase transaction,
+ * establishing a transactional relationship. This is the most valuable segment in retail
+ * customer management, representing proven buyers who generate revenue.
+ */
+service Customers {
+  /*
+   * List - Provides a stream of customers for relationship management
+   * and analytical workflows.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.Customer) {
+    option (google.api.http) = {
+      get: "/customers"
+    };
+  }
+
+  /*
+   * FindById - Finds a customer by their unique versioned identifier.
+   * Essential for customer service, order management, and personalization.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.Customer) {
+    option (google.api.http) = {
+      get: "/customers/{id.id}"
+    };
+  }
+
+  /*
+   * FindByBusinessKey - Finds customers by business identifiers such as
+   * customer numbers, loyalty card numbers, or external system identifiers.
+   */
+  rpc FindByBusinessKey(api.common.pb.BusinessKeyRequest)
+    returns (stream api.customer.pb.Customer) {
+    option (google.api.http) = {
+      post: "/customers/search/business_key"
+      body: "*"
+    };
+  }
+
+  /*
+   * FindByParty - Finds customers associated with a specific party.
+   * Supports customer relationship management and account consolidation.
+   */
+  rpc FindByParty(api.common.pb.VersionIDRequest)
+    returns (stream api.customer.pb.Customer) {
+    option (google.api.http) = {
+      get: "/customers/party/{id.id}"
+    };
+  }
+
+  /*
+   * Create - Adds a new customer to the retail system.
+   * Supports customer conversion from visitor to transacting customer.
+   */
+  rpc Create(api.customer.pb.Customer)
+    returns (api.customer.pb.Customer) {
+    option (google.api.http) = {
+      post: "/customers"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates an existing customer record.
+   * Supports customer profile management and relationship maintenance.
+   */
+  rpc Update(api.customer.pb.Customer)
+    returns (api.customer.pb.Customer) {
+    option (google.api.http) = {
+      put: "/customers"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes a customer from the system following data retention policies.
+   * Supports customer data management and privacy compliance requirements.
+   */
+  rpc Delete(api.customer.pb.Customer)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/customers"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * KeyCustomers - Manages registered customers who have provided comprehensive
+ * personal information and established formal account relationships. This is the
+ * highest value customer segment, enabling personalized experiences and loyalty programs.
+ */
+service KeyCustomers {
+  /*
+   * List - Provides a stream of key customers for relationship management
+   * and loyalty program administration.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.KeyCustomer) {
+    option (google.api.http) = {
+      get: "/key_customers"
+    };
+  }
+
+  /*
+   * FindById - Finds a key customer by their unique versioned identifier.
+   * Essential for personalized service delivery and account management.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.KeyCustomer) {
+    option (google.api.http) = {
+      get: "/key_customers/{id.id}"
+    };
+  }
+
+  /*
+   * FindByCustomer - Finds key customer records associated with a specific customer.
+   * Supports customer account management and service delivery.
+   */
+  rpc FindByCustomer(api.common.pb.VersionIDRequest)
+    returns (stream api.customer.pb.KeyCustomer) {
+    option (google.api.http) = {
+      get: "/key_customers/customer/{id.id}"
+    };
+  }
+
+  /*
+   * Create - Registers a new key customer with comprehensive profile information.
+   * Supports customer account creation and loyalty program enrollment.
+   */
+  rpc Create(api.customer.pb.KeyCustomer)
+    returns (api.customer.pb.KeyCustomer) {
+    option (google.api.http) = {
+      post: "/key_customers"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates key customer profile and preference information.
+   * Supports personalization and customer experience management.
+   */
+  rpc Update(api.customer.pb.KeyCustomer)
+    returns (api.customer.pb.KeyCustomer) {
+    option (google.api.http) = {
+      put: "/key_customers"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes a key customer account following data retention policies.
+   * Supports account closure and privacy compliance requirements.
+   */
+  rpc Delete(api.customer.pb.KeyCustomer)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/key_customers"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * CustomerGroupTypes - Manages classification frameworks for organizing customers
+ * into meaningful segments. Enables systematic customer segmentation strategies
+ * that support targeted marketing, pricing, and service delivery.
+ */
+service CustomerGroupTypes {
+  /*
+   * List - Provides a stream of customer group types for segmentation
+   * and classification management.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.CustomerGroupType) {
+    option (google.api.http) = {
+      get: "/customer_group_types"
+    };
+  }
+
+  /*
+   * FindById - Finds a customer group type by its unique versioned identifier.
+   * Supports customer segmentation and classification workflows.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.CustomerGroupType) {
+    option (google.api.http) = {
+      get: "/customer_group_types/{id.id}"
+    };
+  }
+
+  /*
+   * FindByCategory - Finds customer group types within a specific category.
+   * Supports organized customer segmentation and marketing campaign planning.
+   */
+  rpc FindByCategory(api.common.pb.IDRequest)
+    returns (stream api.customer.pb.CustomerGroupType) {
+    option (google.api.http) = {
+      get: "/customer_group_types/category/{id}"
+    };
+  }
+
+  /*
+   * Create - Adds a new customer group type for segmentation purposes.
+   * Supports customer classification and targeted marketing strategies.
+   */
+  rpc Create(api.customer.pb.CustomerGroupType)
+    returns (api.customer.pb.CustomerGroupType) {
+    option (google.api.http) = {
+      post: "/customer_group_types"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates customer group type definitions and criteria.
+   * Supports evolving segmentation strategies and business requirements.
+   */
+  rpc Update(api.customer.pb.CustomerGroupType)
+    returns (api.customer.pb.CustomerGroupType) {
+    option (google.api.http) = {
+      put: "/customer_group_types"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes a customer group type from the classification system.
+   * Supports segmentation strategy evolution and system maintenance.
+   */
+  rpc Delete(api.customer.pb.CustomerGroupType)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/customer_group_types"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * CustomerGroups - Manages specific collections of customers sharing common
+ * characteristics, behaviors, or business requirements. Enables targeted retail
+ * strategies including personalized marketing, differential pricing, and specialized service levels.
+ */
+service CustomerGroups {
+  /*
+   * List - Provides a stream of customer groups for segmentation
+   * and targeted marketing workflows.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.CustomerGroup) {
+    option (google.api.http) = {
+      get: "/customer_groups"
+    };
+  }
+
+  /*
+   * FindById - Finds a customer group by its unique versioned identifier.
+   * Supports customer segmentation and group management workflows.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.CustomerGroup) {
+    option (google.api.http) = {
+      get: "/customer_groups/{id.id}"
+    };
+  }
+
+  /*
+   * FindByType - Finds customer groups of a specific type.
+   * Supports organized customer segmentation and marketing campaign targeting.
+   */
+  rpc FindByType(api.common.pb.VersionIDRequest)
+    returns (stream api.customer.pb.CustomerGroup) {
+    option (google.api.http) = {
+      get: "/customer_groups/type/{id.id}"
+    };
+  }
+
+  /*
+   * Create - Adds a new customer group for targeted marketing and service delivery.
+   * Supports customer segmentation and specialized treatment strategies.
+   */
+  rpc Create(api.customer.pb.CustomerGroup)
+    returns (api.customer.pb.CustomerGroup) {
+    option (google.api.http) = {
+      post: "/customer_groups"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates customer group definitions and membership criteria.
+   * Supports evolving segmentation strategies and business requirements.
+   */
+  rpc Update(api.customer.pb.CustomerGroup)
+    returns (api.customer.pb.CustomerGroup) {
+    option (google.api.http) = {
+      put: "/customer_groups"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes a customer group from the segmentation system.
+   * Supports group lifecycle management and strategy evolution.
+   */
+  rpc Delete(api.customer.pb.CustomerGroup)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/customer_groups"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * KeyCustomerGroupAffiliations - Manages associations between registered customers
+ * and specific customer groups. Enables targeted retail strategies and specialized
+ * treatment based on group membership, including differential pricing and exclusive offers.
+ */
+service KeyCustomerGroupAffiliations {
+  /*
+   * List - Provides a stream of customer group affiliations for membership
+   * management and targeted marketing workflows.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.KeyCustomerGroupAffiliation) {
+    option (google.api.http) = {
+      get: "/key_customer_group_affiliations"
+    };
+  }
+
+  /*
+   * FindById - Finds a group affiliation by its unique versioned identifier.
+   * Supports membership management and benefit delivery workflows.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.KeyCustomerGroupAffiliation) {
+    option (google.api.http) = {
+      get: "/key_customer_group_affiliations/{id.id}"
+    };
+  }
+
+  /*
+   * FindByCustomer - Finds all group affiliations for a specific key customer.
+   * Essential for benefit delivery and personalized service management.
+   */
+  rpc FindByCustomer(api.common.pb.VersionIDRequest)
+    returns (stream api.customer.pb.KeyCustomerGroupAffiliation) {
+    option (google.api.http) = {
+      get: "/key_customer_group_affiliations/customer/{id.id}"
+    };
+  }
+
+  /*
+   * FindByGroup - Finds all customer affiliations for a specific group.
+   * Supports group membership management and targeted communications.
+   */
+  rpc FindByGroup(api.common.pb.VersionIDRequest)
+    returns (stream api.customer.pb.KeyCustomerGroupAffiliation) {
+    option (google.api.http) = {
+      get: "/key_customer_group_affiliations/group/{id.id}"
+    };
+  }
+
+  /*
+   * Create - Establishes a new customer group membership.
+   * Supports customer enrollment in loyalty programs and special groups.
+   */
+  rpc Create(api.customer.pb.KeyCustomerGroupAffiliation)
+    returns (api.customer.pb.KeyCustomerGroupAffiliation) {
+    option (google.api.http) = {
+      post: "/key_customer_group_affiliations"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates customer group membership status and details.
+   * Supports membership lifecycle management and benefit administration.
+   */
+  rpc Update(api.customer.pb.KeyCustomerGroupAffiliation)
+    returns (api.customer.pb.KeyCustomerGroupAffiliation) {
+    option (google.api.http) = {
+      put: "/key_customer_group_affiliations"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Removes a customer group membership.
+   * Supports membership termination and group management workflows.
+   */
+  rpc Delete(api.customer.pb.KeyCustomerGroupAffiliation)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/key_customer_group_affiliations"
+      body: "*"
+    };
+  }
+}
+
+/*
+ * KeyCustomerAccounts - Manages financial or transactional account relationships
+ * between registered customers and the retailer. Enables various retail financial
+ * services including credit accounts, loyalty programs, layaway services, and
+ * specialized payment arrangements.
+ */
+service KeyCustomerAccounts {
+  /*
+   * List - Provides a stream of customer accounts for financial management
+   * and account administration workflows.
+   */
+  rpc List(google.protobuf.Empty)
+    returns (stream api.customer.pb.KeyCustomerAccount) {
+    option (google.api.http) = {
+      get: "/key_customer_accounts"
+    };
+  }
+
+  /*
+   * FindById - Finds a customer account by its unique versioned identifier.
+   * Essential for account management and financial service delivery.
+   */
+  rpc FindById(api.common.pb.VersionIDRequest)
+    returns (api.customer.pb.KeyCustomerAccount) {
+    option (google.api.http) = {
+      get: "/key_customer_accounts/{id.id}"
+    };
+  }
+
+  /*
+   * FindByCustomer - Finds all accounts for a specific key customer.
+   * Supports comprehensive account management and customer service.
+   */
+  rpc FindByCustomer(api.common.pb.VersionIDRequest)
+    returns (stream api.customer.pb.KeyCustomerAccount) {
+    option (google.api.http) = {
+      get: "/key_customer_accounts/customer/{id.id}"
+    };
+  }
+
+  /*
+   * FindByType - Finds customer accounts of a specific type.
+   * Supports account type management and specialized service delivery.
+   */
+  rpc FindByType(api.common.pb.IDRequest)
+    returns (stream api.customer.pb.KeyCustomerAccount) {
+    option (google.api.http) = {
+      get: "/key_customer_accounts/type/{id}"
+    };
+  }
+
+  /*
+   * Create - Establishes a new customer account relationship.
+   * Supports account opening and financial service enrollment.
+   */
+  rpc Create(api.customer.pb.KeyCustomerAccount)
+    returns (api.customer.pb.KeyCustomerAccount) {
+    option (google.api.http) = {
+      post: "/key_customer_accounts"
+      body: "*"
+    };
+  }
+
+  /*
+   * Update - Updates customer account information and terms.
+   * Supports account maintenance and service management.
+   */
+  rpc Update(api.customer.pb.KeyCustomerAccount)
+    returns (api.customer.pb.KeyCustomerAccount) {
+    option (google.api.http) = {
+      put: "/key_customer_accounts"
+      body: "*"
+    };
+  }
+
+  /*
+   * Delete - Closes a customer account following business policies.
+   * Supports account closure and relationship termination workflows.
+   */
+  rpc Delete(api.customer.pb.KeyCustomerAccount)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/key_customer_accounts"
+      body: "*"
+    };
+  }
+}

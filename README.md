@@ -1,0 +1,1 @@
+# Google Retail Data Model

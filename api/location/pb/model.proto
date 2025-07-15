@@ -1,0 +1,436 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.location.pb;
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/api/location/pb";
+
+// Java Options
+option java_package = "com.retailcortex.api.location.pb";
+option java_multiple_files = true;
+
+import "api/enums/uom/pb/uom.proto";
+
+import "api/enums/geo/pb/geo.proto";
+
+import "api/enums/timezone/pb/time_zone.proto";
+
+import "api/enums/climate/pb/climate.proto";
+
+import "api/common/pb/model.proto";
+
+import "google/protobuf/timestamp.proto";
+
+import "api/bq_table.proto";
+
+// import "api/bq_field.proto";
+
+/***********************************************************************
+ * Site
+ ***********************************************************************/
+
+
+/*
+ * Site represents a physical facility where retail operations are conducted,
+ * serving as the fundamental geographic unit for retail business management.
+ * This encompasses stores, distribution centers, corporate offices, and any
+ * physical location where retail activities occur, providing the foundation
+ * for location-based analytics, operations management, and customer service.
+ * 
+ * Key retail aspects:
+ * - Foundation for store performance analysis and benchmarking
+ * - Enables location-based inventory management and allocation
+ * - Critical for customer service and fulfillment operations
+ * - Supports real estate portfolio management and optimization
+ * - Enables geographic market analysis and expansion planning
+ * - Foundation for workforce management and operational planning
+ * - Supports regulatory compliance and tax jurisdiction management
+ * - Critical for supply chain optimization and logistics planning
+ * - Enables customer experience management across locations
+ * - Foundation for omnichannel retail operations and integration
+ * 
+ * Site types and retail applications:
+ * - STORE: Customer-facing retail locations for sales and service
+ * - WAREHOUSE: Distribution and fulfillment centers for inventory management
+ * - CALL_CENTER: Customer service and support facilities
+ * - OFFICE: Administrative and corporate headquarters
+ * - POPUP: Temporary retail locations for seasonal or promotional activities
+ * - KIOSK: Small-format retail locations in high-traffic areas
+ */
+message Site {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_site";
+
+  /*
+   * PhysicalLocation provides precise geographic positioning and environmental
+   * context for retail sites, enabling location-based analytics, logistics
+   * optimization, and customer service delivery. This supports retail operations
+   * requiring geographic precision such as delivery routing, market analysis,
+   * and regulatory compliance.
+   * 
+   * Key retail aspects:
+   * - Enables precise delivery and fulfillment routing optimization
+   * - Supports location-based customer service and store locator functionality
+   * - Critical for market analysis and competitive positioning
+   * - Enables weather-based inventory planning and seasonal merchandising
+   * - Supports regulatory compliance and tax jurisdiction determination
+   * - Foundation for geographic customer segmentation and targeting
+   * - Enables real estate analysis and site selection optimization
+   * - Critical for emergency response and business continuity planning
+   */
+  message PhysicalLocation {
+    // Complete postal address for customer communications, delivery services,
+    // and regulatory compliance requirements
+    api.common.pb.Address address = 1  [json_name = 'address'];
+
+    // Climate classification for seasonal merchandising, inventory planning,
+    // and operational considerations specific to environmental conditions
+    api.enums.climate.pb.Climate climate = 2 [json_name = 'climate'];
+
+    // Longitude degrees component for precise geographic positioning,
+    // supporting logistics optimization and location-based services
+    int32 longitude_degrees = 3 [json_name = 'lng_d'];
+
+    // Longitude minutes component for enhanced geographic precision
+    // in delivery routing and location-based analytics
+    int32 longitude_minutes = 4  [json_name = 'lng_m'];
+
+    // Longitude seconds component for maximum geographic precision
+    // in specialized retail applications and compliance requirements
+    int32 longitude_seconds = 5  [json_name = 'lng_s'];
+
+    // Longitude direction indicator (E/W) for complete geographic
+    // coordinate specification and mapping system integration
+    string longitude_direction_code = 6  [json_name = 'lng_dir_code'];
+
+    // Latitude degrees component for precise geographic positioning,
+    // supporting market analysis and customer service optimization
+    int32 latitude_degrees = 7  [json_name = 'lat_d'];
+
+    // Latitude minutes component for enhanced geographic precision
+    // in retail analytics and operational planning
+    int32 latitude_minutes = 8  [json_name = 'lat_m'];
+
+    // Latitude seconds component for maximum geographic precision
+    // in specialized retail applications and regulatory compliance
+    int32 latitude_seconds = 9  [json_name = 'lat_s'];
+
+    // Latitude direction indicator (N/S) for complete geographic
+    // coordinate specification and GIS system integration
+    string latitude_direction_code = 10  [json_name = 'lat_dir_code'];
+
+    // Altitude in meters for specialized applications such as drone delivery,
+    // environmental considerations, and precise location services
+    double altitude_meters = 11  [json_name = 'alt_m'];
+  }
+
+  // Unique versioned identifier for the site, enabling historical tracking
+  // of site changes, renovations, and operational evolution over time
+  api.common.pb.VersionID id = 1 [json_name = "id"];
+
+  // Site type classification determining operational characteristics and
+  // business rules (STORE, WAREHOUSE, CALL_CENTER, OFFICE, POPUP, KIOSK)
+  string site_type = 2  [json_name = "site_t"];
+
+  // Complete physical location information including address, coordinates,
+  // and environmental context for operational and analytical purposes
+  PhysicalLocation location = 3  [json_name = "loc"];
+
+  // Reference to the party responsible for site operations, supporting
+  // franchise management, partnership agreements, and operational accountability
+  string operational_party_id = 4 [json_name = "op_prty_id"];
+
+  // International Civil Aviation Organization code for the nearest weather
+  // reporting station, enabling weather-based inventory planning, seasonal
+  // merchandising, and operational decision-making based on local conditions
+  string icao_code = 6  [json_name = "icao_cd"];
+
+  // Local time zone for the site, critical for operational scheduling,
+  // customer service hours, and multi-location coordination
+  api.enums.timezone.pb.TimeZone time_zone = 7  [json_name = "tz"];
+
+  // Contact information for site personnel including store managers,
+  // department supervisors, and operational contacts for customer service
+  // and business operations coordination
+  repeated api.common.pb.Contact contacts = 8  [json_name = "cntcts"];
+
+  // Angular offset from true north for the site's coordinate system,
+  // supporting accurate floor plan mapping, fixture placement, and
+  // spatial analytics for retail space optimization
+  double angle_offset_degrees = 10 [json_name = "ang_offset"];
+
+  // Additional business metadata and identifiers for system integration,
+  // reporting, and operational management across retail platforms
+  repeated api.common.pb.BusinessKey meta = 11 [json_name = "meta"];
+
+  // Collection of location identifiers within this site, supporting
+  // hierarchical space management and detailed operational analytics
+  // for retail space utilization and performance optimization
+  repeated string location_ids = 9 [json_name = "loc_ids"];
+}
+
+/***********************************************************************
+ * Location
+ ***********************************************************************/
+
+/*
+ * LocationMeasure provides standardized measurement capabilities for retail
+ * location management, enabling precise space utilization analysis, capacity
+ * planning, and operational optimization. This supports critical retail
+ * functions including planogram management, inventory allocation, and
+ * customer experience optimization through effective space management.
+ * 
+ * Key retail aspects:
+ * - Enables precise planogram development and space allocation optimization
+ * - Supports inventory capacity planning and stock level management
+ * - Critical for customer flow analysis and store layout optimization
+ * - Enables fixture placement and merchandising display planning
+ * - Supports compliance with safety regulations and accessibility requirements
+ * - Foundation for retail space productivity analysis and benchmarking
+ * - Enables accurate rent allocation and space cost management
+ * - Critical for seasonal merchandising and promotional space planning
+ * - Supports omnichannel fulfillment space requirements and optimization
+ * 
+ * Common retail measurement applications:
+ * - Sales floor area: Customer shopping and product display space
+ * - Storage capacity: Back-room and warehouse inventory storage
+ * - Fixture dimensions: Shelving, displays, and merchandising equipment
+ * - Customer capacity: Maximum occupancy and traffic flow planning
+ * - Loading dock specifications: Receiving and shipping operations
+ * - Parking availability: Customer convenience and accessibility
+ */
+message LocationMeasure {
+  // Descriptive name for the measurement type, providing business context
+  // for retail space management and operational planning
+  string name = 1  [json_name = "nm"];
+
+  // Unit of measure specification with type-safe measurement categories
+  // ensuring proper handling of different measurement types in retail systems
+  oneof uom {
+    // Distance measurements for fixture placement, aisle width, and
+    // spatial planning in retail environments
+    api.enums.uom.pb.Distance distance = 2  [json_name = "dist"];
+
+    // Count measurements for fixture quantities, customer capacity,
+    // and discrete retail space elements
+    api.enums.uom.pb.Count count = 3  [json_name = "cnt"];
+
+    // Capacity measurements for storage volume, inventory holding,
+    // and space utilization in retail operations
+    api.enums.uom.pb.Capacity capacity = 4  [json_name = "cap"];
+
+    // Area measurements for sales floor, storage space, and
+    // retail location footprint analysis
+    api.enums.uom.pb.Area area = 5  [json_name = "ara"];
+
+    // Weight measurements for structural capacity, fixture loading,
+    // and safety compliance in retail environments
+    api.enums.uom.pb.Weight weight = 6 [json_name = "wgt"];
+  }
+  reserved 7 to 19;
+
+  // Numeric value of the measurement, providing quantitative data
+  // for retail space analysis and operational decision-making
+  double value = 20 [json_name = "val"];
+}
+
+/*
+ * Outrigger entity to temporarily represent location coordinates.
+ *
+ * Location is a named area within a Site or within a Location.  Location
+ * Coordinate defines the insertion point of a location within a site or
+ * location's local coordinate system.  It provides a way to position the
+ * origin of a location (which is the back left corner of a location).
+ */
+message LocationCoordinate {
+
+  /*
+   * The degree offset representing the angular orientation of a LOCATION's
+   * ORIGIN with respect to the Location.
+   *
+   * The degrees are measured in a COUNTER CLOCKWISE direction from back left
+   * corner which is assumed to be 0 degrees.
+   *
+   * In most scenarios the location will be viewed on a XYZ axis that
+   * represents a local cartesian space.  This offset documents the angular
+   * difference from the location's orientation from its parent orientation.
+   * Used as a basis for transforming coordinate systems between a parent site
+   * and the locations it contains OR between a parent location and its
+   * children.
+   */
+  double angle_offset_degrees = 1 [json_name = "ang_offset"];
+
+  /*
+   * Defines the distance measure used between initial coordinate and vertices.
+   * Thus defining the spacial aspects of the shape.
+   */
+  api.enums.uom.pb.Distance unit_of_measure = 2 [json_name = 'uom'];
+
+  /*
+   * The X coordinate for the location insertion point within a Site or parent
+   * location.  Places the left back corner of a location.  From this point
+   * the vertex points are measured to define the shape of the location
+   * relative to 0,0,0 local coordinate system (i.e. local to the location).
+   */
+  double x = 3 [json_name = "x"];
+  /*
+   * The Y coordinate for the location insertion point within a Site or parent
+   * location.  Places the left back corner of a location.  From this point
+   * the vertex points are measured to define the shape of the location
+   * relative to 0,0,0 local coordinate system (i.e. local to the location).
+   */
+  double y = 4 [json_name = "y"];
+  /*
+   * The Z coordinate for the location insertion point within a Site or parent
+   * location.  Places the left back corner of a location.  From this point
+   * the vertex points are measured to define the shape of the location
+   * relative to 0,0,0 local coordinate system (i.e. local to the location).
+   */
+  double z = 5 [json_name = "z"];
+
+  /*
+   * Describes the shape of the location as repeatable points as related
+   * to the UOM of the parent location
+   */
+  message LocationVertex {
+    // The order of the vertex
+    int32 ordinal = 1 [json_name = "ord"];
+    /*
+     * The X-coordinate of this LocationVertex within the given location local
+     * coordinate system.
+     */
+    double x = 2 [json_name = "x"];
+    /*
+     * The Y-coordinate of this LocationVertex within a given location local
+     * coordinate system.
+     */
+    double y = 3 [json_name = "y"];
+    /*
+     * The Z-coordinate of this LocationVertex within a given location local
+     * coordinate system.
+     */
+    double z = 4 [json_name = "z"];
+  }
+  repeated LocationVertex location_vertices = 6 [json_name = "vertices"];
+}
+
+/*
+ * A physical place the retailer conducts business. It may be any or all of the
+ * defined sub-types: WorkLocation, SellingLocation, InventoryLocation.
+ *
+ * Location is intended to reflect non-movable spaces
+ * within a Site (and a Site typically represents a building).
+ *
+ * A Fixture, is treated as a separate MOVABLE space that merchandise is stored
+ * and/or displayed on.
+ */
+message Location {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_location";
+
+  /*
+   * A version ID with effective date for location site change planning.
+   */
+  api.common.pb.VersionID id = 1  [json_name = "id"];
+
+
+  /*
+   * A version ID with effective date for location site change planning.
+   */
+  api.common.pb.VersionID parent_id = 2  [json_name = "parent_id"];
+
+
+  /*
+   * The ID of the site the location
+   */
+
+  /*
+   * Designates the location category such as: FIXTURE, FLOOR, SECTION, STORE
+   * WINDOW, End Cap, etc.
+   */
+  string location_type = 3  [json_name = "loc_t"];
+  /*
+   * A code that describes what business activities and functions are performed
+   * in a specific location: Admin, Display, Customer Service, Returns &
+   * OVERFLOW, OVERHEAD_MANAGEMENT, STOCK_POINT, RECEIVING, etc.
+   */
+  string location_function_type = 4  [json_name = "loc_func"];
+
+  // Additional security measures for the location such as KEYED_ACCESS,
+  // or REQUIRES_MANAGER, etc.
+  string inventory_location_security_type = 5 [json_name = "inv_loc_sec"];
+
+  // Does the space stock items, and is it ledger controlled.
+  bool stock_ledger_control_flag = 6  [json_name = "stk_ldgr_ctl"];
+
+  // The available measurements for the location, This may be volume, or area
+  // weight limits, etc.
+  repeated LocationMeasure measures = 7 [json_name = "measures"];
+
+  // A merchandise group represents the intended use of the location to an
+  // attributed merchandise hierarchy
+  message CategoryGroup {
+    // The merchandise hierarchy id
+    string category_id = 1  [json_name = "category_id"];
+    // The date merchandise from this group was used in this location
+    google.protobuf.Timestamp effective_date = 2 [json_name = "eff_date"];
+    // A performance perspective continually updated to evaluate how a
+    // merch hierarchy is performing or has performed in this location
+    double performance_score = 3 [json_name = "score"];
+  }
+
+  // A list of historical merchandise hierarchies used in this location.
+  repeated CategoryGroup category_groups = 8 [json_name = "merch_grps"];
+
+  // Coordinates of the location
+  LocationCoordinate location_coordinate = 9 [json_name = 'loc_crd'];
+  // Children locations, as a location may be hierarchical
+
+  repeated api.common.pb.BusinessKey meta = 10 [json_name = 'meta'];
+}
+
+/*
+ * A macro grouping for a GeoSegments, ideally without overlap.
+ */
+message GeoSegmentGroup {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_geo_segment_group";
+  api.common.pb.VersionID id = 1 [json_name = "id"];
+  api.enums.geo.pb.GeoSegmentGroup type = 2 [json_name = "t"];
+  // A set of IDs always pointing to the latest revisions
+  repeated string geo_segment_ids = 3 [json_name = "segment_ids"];
+}
+
+/*
+ * A customer grouping based on common GeographicSegment. A GeographicSegment
+ * is an AREA and it  can be a large area composed of lower level areas or a low
+ * level composed of a single location.  Retailers will decide how to use
+ * geographic hierarchies and locations to segment customers.  ARTS provides a
+ * very flexible schema so retailers have wide latitude to choose their
+ * geographic customer segmentation strategy.
+ *
+ * As a rule, retailers should choose a the LOWEST level geographic segment
+ * their systems and data will support because it is possible to aggregate up to
+ * higher levels.  But it is very difficult to decompose higher level geographic
+ * areas to lower levels if  those level segments are not defined.
+ */
+message GeoSegment {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_geo_segment";
+  api.common.pb.VersionID id = 1 [json_name = "id"];
+  api.enums.geo.pb.GeoSegment type = 2 [json_name = "t"];
+  string abbreviation = 3 [json_name = 'abbr'];
+  string description = 4 [json_name = "desc"];
+  repeated Site sites = 5 [json_name = "sites"];
+  repeated GeoSegment children = 6 [json_name = "children"];
+}

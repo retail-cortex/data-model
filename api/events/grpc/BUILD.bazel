@@ -1,0 +1,16 @@
+load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//proto:def.bzl", "go_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "grpc_proto",
+    srcs = ["service.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//api/common/pb:pb_proto",
+        "//api/events/pb:pb_proto",
+        "@googleapis//google/api:annotations_proto",
+        "@protobuf//:empty_proto",
+        "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
+    ],
+)

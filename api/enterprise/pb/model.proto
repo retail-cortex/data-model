@@ -1,0 +1,305 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.enterprise.pb;
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/api/enterprise/pb";
+
+// Java Options
+option java_package = "com.github.retailcortext.api.enterprise.pb";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+import "api/common/pb/model.proto";
+import "api/enums/lang/pb/lang.proto";
+import "api/enums/currency/pb/currency.proto";
+import "api/enums/country/pb/country.proto";
+import "api/party/pb/model.proto";
+
+import "api/bq_table.proto";
+
+/*
+ * BusinessUnitGroup represents a logical grouping of business units within the retail
+ * enterprise, enabling hierarchical organization and management of retail operations.
+ * This supports multi-brand retailers, franchise operations, and geographic divisions
+ * that need coordinated management while maintaining operational independence.
+ * 
+ * Key retail aspects:
+ * - Enables multi-brand retail portfolio management
+ * - Supports franchise and licensing business models
+ * - Facilitates regional or market-based organizational structures
+ * - Enables shared services and resource optimization across units
+ * - Supports localization and internationalization strategies
+ * - Critical for consolidated reporting and performance analysis
+ */
+message BusinessUnitGroup {
+  // Unique versioned identifier for the business unit group, enabling
+  // historical tracking of organizational changes and restructuring
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Primary language for business operations, communications, and
+  // customer interactions within this business unit group
+  api.enums.lang.pb.Language primary_language = 2 [json_name = 'primary_language'];
+
+  // Additional languages supported across the business units in this group,
+  // enabling multi-lingual operations and customer service
+  repeated api.enums.lang.pb.Language supported_languages = 3 [json_name = 'languages'];
+
+  // Collection of business unit identifiers that belong to this group,
+  // defining the organizational hierarchy and operational scope
+  repeated string business_unit_ids = 4 [json_name = 'business_unit_ids'];
+}
+
+/*
+ * BusinessUnit represents a fundamental operational entity within the retail enterprise,
+ * encompassing stores, distribution centers, and administrative facilities. This aligns
+ * with the ARTS retail data model's concept of organizational units that conduct
+ * business operations and serve as the foundation for retail management and reporting.
+ * 
+ * Key retail aspects:
+ * - Core operational entity for retail business management
+ * - Enables multi-channel retail operations (physical, digital, catalog)
+ * - Supports performance measurement and profitability analysis
+ * - Critical for inventory allocation and supply chain management
+ * - Enables localized pricing, promotions, and merchandising strategies
+ * - Foundation for workforce management and operational planning
+ */
+message BusinessUnit {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_business_unit";
+
+  /*
+   * RetailStore represents a customer-facing business unit where merchandise and
+   * services are sold directly to consumers. This encompasses physical stores,
+   * e-commerce sites, mobile apps, and other customer touchpoints in omnichannel
+   * retail operations.
+   * 
+   * Key retail aspects:
+   * - Primary revenue-generating entity in retail operations
+   * - Customer experience delivery point across all channels
+   * - Inventory display and sales execution location
+   * - Local market adaptation and community engagement hub
+   * - Performance measurement unit for sales and profitability
+   * - Integration point for omnichannel customer journeys
+   */
+  message RetailStore {
+    // Date when the store began operations, critical for performance analysis,
+    // lease management, and operational planning
+    google.protobuf.Timestamp open_date = 1 [json_name = 'open_date'];
+
+    // Date when store operations ceased, important for historical analysis
+    // and asset management in retail portfolio optimization
+    google.protobuf.Timestamp close_date = 2 [json_name = 'close_date'];
+
+    // Most recent renovation date, affecting store performance, customer experience,
+    // and asset valuation in retail real estate management
+    google.protobuf.Timestamp last_remodeled_date = 3 [json_name = 'last_remodeled_date'];
+
+    // Physical and operational measurements including sales floor area, storage capacity,
+    // customer capacity, and other metrics critical for store operations and planning
+    repeated api.common.pb.NamedMeasure named_measures = 4 [json_name = 'named_measures'];
+  }
+
+  /*
+   * DistributionCenter represents a logistics and fulfillment facility that receives,
+   * stores, and distributes merchandise throughout the retail supply chain. These
+   * facilities are critical for inventory management, order fulfillment, and
+   * supply chain efficiency in modern retail operations.
+   * 
+   * Key retail aspects:
+   * - Central hub for inventory management and distribution
+   * - Critical for omnichannel fulfillment and customer delivery
+   * - Cost center requiring optimization for operational efficiency
+   * - Key component in supply chain resilience and flexibility
+   * - Integration point for vendor relationships and inbound logistics
+   * - Foundation for inventory planning and demand forecasting
+   */
+  message DistributionCenter {
+    // Operational start date for capacity planning, lease management,
+    // and supply chain network optimization
+    google.protobuf.Timestamp open_date = 1 [json_name = 'open_date'];
+
+    // Closure date for historical analysis and supply chain restructuring
+    google.protobuf.Timestamp close_date = 2 [json_name = 'close_date'];
+
+    // Last renovation date affecting operational capacity, efficiency,
+    // and technology capabilities
+    google.protobuf.Timestamp last_remodeled_date = 3 [json_name = 'last_remodeled_date'];
+
+    // Facility measurements including storage capacity, throughput capabilities,
+    // dock doors, and other operational metrics for logistics planning
+    repeated api.common.pb.NamedMeasure named_measures = 4 [json_name = 'named_measures'];
+  }
+
+  /*
+   * AdministrationCenter represents corporate and administrative facilities that
+   * support retail operations through management, planning, and support functions.
+   * These facilities house corporate headquarters, regional offices, and
+   * specialized support centers.
+   * 
+   * Key retail aspects:
+   * - Corporate governance and strategic planning hub
+   * - Support services for retail operations (IT, HR, Finance)
+   * - Regional management and market coordination center
+   * - Cost center requiring optimization and efficiency management
+   * - Integration point for enterprise systems and data management
+   * - Foundation for corporate culture and organizational development
+   */
+  message AdministrationCenter {
+    // Facility opening date for lease management and organizational planning
+    google.protobuf.Timestamp open_date = 1 [json_name = 'open_date'];
+
+    // Closure date for organizational restructuring and cost management
+    google.protobuf.Timestamp close_date = 2 [json_name = 'close_date'];
+
+    // Last renovation date affecting workspace efficiency and employee experience
+    google.protobuf.Timestamp last_remodeled_date = 3 [json_name = 'last_remodeled_date'];
+
+    // Facility measurements including office space, employee capacity,
+    // and infrastructure metrics for workspace planning
+    repeated api.common.pb.NamedMeasure named_measures = 4 [json_name = 'named_measures'];
+  }
+
+  // Unique versioned identifier for the business unit, enabling historical
+  // tracking of organizational changes and operational evolution
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Operational status of the business unit (ACTIVE, INACTIVE, PLANNED, CLOSED)
+  // critical for operational planning and performance reporting
+  string status = 2 [json_name = 'status'];
+
+  // Primary currency for financial operations, pricing, and reporting
+  // within this business unit's market and operational context
+  api.enums.currency.pb.Currency primary_currency = 3 [json_name = 'primary_currency'];
+
+  // Additional currencies supported for customer transactions and
+  // multi-currency operations in international retail markets
+  repeated api.enums.currency.pb.Currency supported_currencies = 4 [json_name = 'supported_currencies'];
+
+  // Party responsible for operating this business unit, including
+  // franchisees, partners, or internal operational management
+  api.party.pb.OperationalParty operational_party = 5 [json_name = 'operational_party'];
+
+  // Maximum operational capacity for planning and resource allocation,
+  // measured in units appropriate to the business unit type
+  int32 operational_capacity = 6 [json_name = 'operational_capacity'];
+
+  // Specific business unit type details, determining operational
+  // characteristics and management requirements
+  oneof detail {
+    // Retail store configuration for customer-facing sales operations
+    RetailStore store = 7 [json_name = 'store'];
+
+    // Distribution center configuration for logistics and fulfillment
+    DistributionCenter distribution_center = 8 [json_name = 'distribution_center'];
+
+    // Administration center configuration for corporate and support functions
+    AdministrationCenter administration_center = 9 [json_name = 'administration_center'];
+  }
+}
+
+/*
+ * TaxCode represents a comprehensive tax calculation framework for retail operations,
+ * supporting complex hierarchical tax structures across multiple jurisdictions.
+ * This is essential for retail compliance, accurate pricing, and financial reporting
+ * in multi-location and multi-jurisdictional retail environments.
+ * 
+ * Key retail aspects:
+ * - Ensures accurate tax calculation for all customer transactions
+ * - Supports compliance with local, state, and federal tax regulations
+ * - Enables category-specific tax rates (food, clothing, luxury goods)
+ * - Critical for pricing strategies and margin management
+ * - Supports international retail operations with varying tax structures
+ * - Essential for financial reporting and tax remittance processes
+ * 
+ * Example hierarchy:
+ * USA - Colorado: SALES_TAX, 7.0% [ALL CATEGORIES]
+ * USA - Colorado - Parker: FOOD_TAX, 0.5% [FOOD, BEVERAGE]
+ * USA - Colorado - Parker: CLEAN_AIR_ACT, 0.1% [TOBACCO]
+ * 
+ * Result: A beverage purchase in Parker, Colorado incurs 7.5% total tax
+ */
+message TaxCode {
+  option (gen_bq_schema.bigquery_opts).table_name = "tbl_tax_code";
+
+  /*
+   * Rate represents a specific tax rate within a tax code, enabling granular
+   * tax calculation based on product categories, municipalities, and special
+   * tax districts. This supports complex retail tax scenarios including
+   * category-specific exemptions and special assessments.
+   * 
+   * Key retail aspects:
+   * - Category-specific tax rates for different product types
+   * - Municipal and special district tax assessments
+   * - Temporal tax rate changes and promotional tax periods
+   * - Compliance with product-specific tax regulations
+   * - Support for tax exemptions and special customer categories
+   */
+  message Rate {
+    // Unique versioned identifier for the tax rate, enabling historical
+    // tracking of tax rate changes for compliance and reporting
+    api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+    // Deletion timestamp for tax rate lifecycle management and
+    // historical compliance reporting
+    google.protobuf.Timestamp deleted = 2 [json_name = 'deleted'];
+
+    // Descriptive name for the tax rate (e.g., "Sales Tax", "Luxury Tax",
+    // "Environmental Fee") for business user identification
+    string name = 3 [json_name = 'name'];
+
+    // Detailed description of the tax rate purpose, applicability,
+    // and calculation rules for compliance documentation
+    string description = 4 [json_name = 'description'];
+
+    // Municipality or tax district where this rate applies,
+    // supporting location-based tax calculation
+    string municipality = 5 [json_name = 'municipality'];
+
+    // Tax rate as a decimal percentage (e.g., 0.075 for 7.5%),
+    // used in transaction tax calculations
+    double rate = 6 [json_name = 'rate'];
+
+    // Product category identifiers to which this tax rate applies,
+    // enabling category-specific tax treatment
+    repeated string category_ids= 7 [json_name = 'category_ids'];
+  }
+
+  // Unique versioned identifier for the tax code, supporting
+  // historical tracking and compliance audit requirements
+  api.common.pb.VersionID id = 1 [json_name = 'id'];
+
+  // Deletion timestamp for tax code lifecycle management
+  // and regulatory compliance tracking
+  google.protobuf.Timestamp deleted = 2 [json_name = 'deleted'];
+
+  // Business name for the tax code (e.g., "Colorado State Tax")
+  // for operational identification and reporting
+  string name = 3 [json_name = 'name'];
+
+  // Comprehensive description of the tax code scope, applicability,
+  // and regulatory basis for compliance documentation
+  string description = 4  [json_name = 'description'];
+
+  // Country where this tax code applies, supporting international
+  // retail operations and multi-country tax compliance
+  api.enums.country.pb.Country country = 5 [json_name = 'country'];
+
+  // Collection of tax rates that comprise this tax code,
+  // enabling complex hierarchical tax calculations
+  repeated Rate rates = 6 [json_name = 'rates'];
+}

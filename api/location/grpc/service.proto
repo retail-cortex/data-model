@@ -1,0 +1,246 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.location.grpc;
+
+/*
+ * Go Lang Options
+ */
+option go_package = "github.com/retail-cortex/api/location/grpc";
+
+/*
+ * Java Options
+ */
+option java_package = "com.retailcortex.api.location.grpc";
+option java_multiple_files = true;
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+
+import "google/protobuf/field_mask.proto";
+
+import "api/common/pb/model.proto";
+
+import "api/location/pb/model.proto";
+
+service Sites {
+  rpc Create(api.location.pb.Site)
+    returns (api.location.pb.Site) {
+    option (google.api.http) = {
+      post: "/sites"
+      body: "site"
+    };
+  }
+
+  rpc Update(api.location.pb.Site)
+    returns (api.location.pb.Site) {
+    option (google.api.http) = {
+      put: "/sites"
+      body: "site"
+    };
+  }
+
+  rpc Delete(api.location.pb.Site)
+    returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/sites"
+      body: "site"
+    };
+  }
+
+  rpc GetById(api.common.pb.VersionIDRequest)
+    returns (api.location.pb.Site) {
+    option (google.api.http) = {
+      get: "/sites/{id}/{version}"
+    };
+  }
+
+  rpc GetEffectiveSite(api.common.pb.IDRequest)
+    returns (api.location.pb.Site) {
+    option (google.api.http) = {
+      get: "/sites/{id}"
+    };
+  }
+
+  rpc ListEffectiveSites(google.protobuf.Empty)
+    returns (stream api.location.pb.Site) {
+    option (google.api.http) = {
+      get: "/sites"
+    };
+  }
+}
+
+service Locations {
+  rpc Create(api.location.pb.Location)
+    returns (api.location.pb.Location) {
+    option (google.api.http) = {
+      post: "/locations"
+      body: "location"
+    };
+  }
+
+  rpc Update(api.location.pb.Location)
+    returns (api.location.pb.Location) {
+    option (google.api.http) = {
+      put: "/locations"
+      body: "location"
+    };
+  }
+
+  rpc Delete(api.location.pb.Location)
+    returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/locations"
+      body: "location"
+    };
+  }
+
+  rpc GetById(api.common.pb.VersionIDRequest)
+    returns (api.location.pb.Location) {
+    option (google.api.http) = {
+      get: "/locations/{id}/{version}"
+    };
+  }
+
+  rpc GetEffective(api.common.pb.IDRequest)
+    returns (api.location.pb.Location) {
+    option (google.api.http) = {
+      get: "/locations/{id}"
+    };
+  }
+
+  rpc ListEffective(google.protobuf.Empty)
+    returns (stream api.location.pb.Location) {
+    option (google.api.http) = {
+      get: "/locations"
+    };
+  }
+}
+
+service GeoSegmentGroups {
+  rpc Create(api.location.pb.GeoSegmentGroup)
+    returns (api.location.pb.GeoSegmentGroup) {
+    option (google.api.http) = {
+      post: "/geo_segment_groups"
+      body: "geo_segment_group"
+    };
+  }
+
+  rpc Update(api.location.pb.GeoSegmentGroup)
+    returns (api.location.pb.GeoSegmentGroup) {
+    option (google.api.http) = {
+      put: "/geo_segment_groups"
+      body: "geo_segment_group"
+    };
+  }
+
+  rpc Delete(api.location.pb.GeoSegmentGroup)
+    returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/geo_segment_groups"
+      body: "geo_segment_group"
+    };
+  }
+
+  /**
+   * Finds a GeoSegment by ID
+   */
+  rpc GetByID(api.common.pb.VersionIDRequest)
+    returns (api.location.pb.GeoSegmentGroup) {
+    option (google.api.http) = {
+      get: "/geo_segment_groups/{id}/{version}"
+    };
+  }
+
+  rpc GetEffective(api.common.pb.IDRequest)
+    returns (api.location.pb.GeoSegmentGroup) {
+    option (google.api.http) = {
+      get: "/geo_segment_groups/{id}"
+    };
+  }
+
+  rpc ListEffective(google.protobuf.Empty)
+    returns (stream api.location.pb.GeoSegmentGroup) {
+    option (google.api.http) = {
+      get: "/geo_segment_groups"
+    };
+  }
+
+}
+
+service GeoSegments {
+  rpc Create(api.location.pb.GeoSegment)
+    returns (api.location.pb.GeoSegment) {
+    option (google.api.http) = {
+      post: "/geo_segments"
+      body: "geo_segment"
+    };
+  }
+
+  rpc Update(api.location.pb.GeoSegment)
+    returns (api.location.pb.GeoSegment) {
+    option (google.api.http) = {
+      put: "/geo_segments"
+      body: "geo_segment"
+    };
+  }
+
+  rpc Delete(api.location.pb.GeoSegment)
+    returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/geo_segments"
+      body: "geo_segment"
+    };
+  }
+
+  /**
+   * Gets a GeoSegment by ID
+   */
+  rpc GetByID(api.common.pb.VersionIDRequest)
+    returns (api.location.pb.GeoSegment) {
+    option (google.api.http) = {
+      get: "/geo_segments/{id}/{version}"
+    };
+  }
+
+  rpc GetEffective(api.common.pb.IDRequest)
+    returns (api.location.pb.GeoSegment) {
+    option (google.api.http) = {
+      get: "/geo_segments/{id}"
+    };
+  }
+
+  rpc ListEffective(google.protobuf.Empty)
+    returns (stream api.location.pb.GeoSegment) {
+    option (google.api.http) = {
+      get: "/geo_segments"
+    };
+  }
+
+  /**
+   * Finds a GeoSegment by a path such as:
+   * /world/north america/united states/georgia/atlanta
+   * this match ignores case.
+   */
+  rpc FindByAbbreviationPath(google.protobuf.FieldMask)
+    returns (stream api.location.pb.GeoSegment) {
+    option (google.api.http) = {
+      post: "/geo_segments"
+      body: "field_mask"
+    };
+  }
+}

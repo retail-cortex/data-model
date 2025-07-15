@@ -1,0 +1,13 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+proto_library(
+    name = "grpc_proto",
+    srcs = ["inventory_fact_service.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//api/common/pb:pb_proto",
+        "//api/inventory/fact/pb:pb_proto",
+        "@googleapis//google/api:annotations_proto",
+        "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
+    ],
+)

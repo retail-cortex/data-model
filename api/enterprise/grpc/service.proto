@@ -1,0 +1,196 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.enterprise.grpc;
+
+/*
+ * Go Lang Options
+ */
+option go_package = "github.com/retail-cortex/api/enterprise/grpc";
+
+/*
+ * Java Options
+ */
+option java_package = "com.retailcortex.api.enterprise.grpc";
+option java_multiple_files = true;
+
+import "google/api/annotations.proto";
+
+import "google/protobuf/empty.proto";
+
+import "api/common/pb/model.proto";
+
+import "api/enterprise/pb/model.proto";
+
+service BusinessUnits {
+  rpc Create(api.enterprise.pb.BusinessUnit)
+    returns (api.enterprise.pb.BusinessUnit) {
+    option (google.api.http) = {
+      post: "/business_units"
+      body: "model"
+    };
+  }
+
+  rpc Update(api.enterprise.pb.BusinessUnit)
+    returns (api.enterprise.pb.BusinessUnit) {
+    option (google.api.http) = {
+      put: "/business_units"
+      body: "model"
+    };
+  }
+
+  rpc GetBusinessModel(api.common.pb.IDRequest)
+    returns (api.enterprise.pb.BusinessUnit) {
+    option (google.api.http) = {
+      get: "/business_units/{id}"
+    };
+  }
+
+  rpc GetBusinessModelVersion(api.common.pb.VersionIDRequest)
+    returns (api.enterprise.pb.BusinessUnit) {
+    option (google.api.http) = {
+      get: "/business_units/{id}/{version}"
+    };
+  }
+
+  rpc GetBusinessModelVersionHistory(api.common.pb.IDRequest)
+    returns (stream api.enterprise.pb.BusinessUnit) {
+    option (google.api.http) = {
+      get: "/business_units/history/{id}"
+    };
+  }
+
+  rpc Delete(api.enterprise.pb.BusinessUnit)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/business_units"
+      body: "model"
+    };
+  }
+}
+
+
+service TaxCodes {
+  /*
+   * List - Provides a stream / ordered list of tax rates.
+   */
+  rpc GetTaxCodes(google.protobuf.Empty)
+    returns (stream api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      get: "/tax_codes"
+    };
+  }
+
+  /*
+  List - Provides a stream / ordered list of active tax rates.
+   */
+  rpc GetTaxCode(api.common.pb.IDRequest)
+    returns (api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      get: "/tax_codes/active/{id}"
+    };
+  }
+
+  /*
+  List - Provides a stream / tax code histories.
+   */
+  rpc GetTaxCodeVersionHistory(api.common.pb.IDRequest)
+    returns (stream api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      get: "/tax_codes/history/{id}"
+    };
+  }
+
+  /*
+  List - Provides a stream / ordered list of countries.
+   */
+  rpc GetTaxCodeVersion(api.common.pb.VersionIDRequest)
+    returns (api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      get: "/tax_codes/{id}/{version}"
+    };
+  }
+
+  /*
+  Create - Adds a tax to the data store
+   */
+  rpc Create(api.enterprise.pb.TaxCode)
+    returns (api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      post: "/tax_codes"
+      body: "model"
+    };
+  }
+
+  /*
+  Create - Adds a country to the data store
+   */
+  rpc CreateRate(api.enterprise.pb.TaxCode.Rate)
+    returns (api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      post: "/tax_codes/rates"
+      body: "tax_code_rate"
+    };
+  }
+
+  /*
+  Update - Updates an existing tax code, and MUST increment the version
+  and effective dates
+   */
+  rpc Update(api.enterprise.pb.TaxCode)
+    returns (api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      put: "/tax_codes"
+      body: "model"
+    };
+  }
+
+  /*
+  Update - Updates an existing tax code rate, and MUST increment the version
+  and effective dates
+   */
+  rpc UpdateRate(api.enterprise.pb.TaxCode.Rate)
+    returns (api.enterprise.pb.TaxCode) {
+    option (google.api.http) = {
+      put: "/tax_codes/rates"
+      body: "model"
+    };
+  }
+
+  /*
+  Delete - removes a country from the backing store, the implementation
+  defines the strategy.
+   */
+  rpc Delete(api.enterprise.pb.TaxCode)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/tax_codes"
+      body: "model"
+    };
+  }
+
+  /*
+  Delete - removes a country from the backing store, the implementation
+  defines the strategy.
+   */
+  rpc DeleteRate(api.enterprise.pb.TaxCode.Rate)
+    returns (api.common.pb.StatusResponse) {
+    option (google.api.http) = {
+      delete: "/tax_codes/{tax_code_id}/rates"
+      body: "model"
+    };
+  }
+}
