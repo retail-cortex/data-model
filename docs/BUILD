@@ -15,11 +15,11 @@ load("@rules_hugo//hugo:rules.bzl", "hugo_serve", "hugo_site", "hugo_theme")
 load("//:build/copy_file_groups.bzl", "copy_file_groups")
 
 hugo_theme(
-    name = "hugo_theme_relearn",
+    name = "hugo_theme_geekdoc",
     srcs = [
-        "@hugo_theme_relearn//:files",
+        "@hugo_theme_geekdoc//:files",
     ],
-    theme_name = "hugo-theme-relearn",
+    theme_name = "hugo_theme_geekdoc",
 )
 
 copy_file_groups(
@@ -37,7 +37,7 @@ hugo_site(
     images = glob(["images/**"]),
     quiet = False,
     static = glob(["static/**"]),
-    theme = ":hugo_theme_relearn",
+    theme = ":hugo_theme_geekdoc",
     verbose = True,
 )
 

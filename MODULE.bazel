@@ -48,22 +48,22 @@ go_deps.from_file(go_mod = "//:go.mod")
 hugo_deps = use_extension("@rules_hugo//hugo:extensions.bzl", "hugo_deps")
 
 # Configure Hugo repository
-hugo_deps.hugo_repository(
-    name = "hugo_local",
-    extended = True,
-    version = "0.148.1",
-)
-hugo_deps.http_archive(
-    name = "hugo_theme_relearn",
-    build_file_content = """
-filegroup(
-    name = "files",
-    srcs = glob(["**"]),
-    visibility = ["//visibility:public"]
-)
-        """,
-    sha256 = "b1b32ef9f5dd8508b82bc654f8a37fe14fba054d3802a35200e83636553f147b",
-    strip_prefix = "hugo-theme-relearn-8.0.0",
-    url = "https://github.com/McShelby/hugo-theme-relearn/archive/refs/tags/8.0.0.zip",
-)
-use_repo(hugo_deps, "hugo_local", "hugo_theme_relearn")
+#hugo_deps.hugo_repository(
+#    name = "hugo_local",
+#    extended = True,
+#    version = "0.148.1",
+#)
+#hugo_deps.http_archive(
+#    name = "hugo_theme_relearn",
+#    build_file_content = """
+#filegroup(
+#    name = "files",
+#    srcs = glob(["**"]),
+#    visibility = ["//visibility:public"]
+#)
+#        """,
+#    sha256 = "b1b32ef9f5dd8508b82bc654f8a37fe14fba054d3802a35200e83636553f147b",
+#    strip_prefix = "hugo-theme-relearn-8.0.0",
+#    url = "https://github.com/McShelby/hugo-theme-relearn/archive/refs/tags/8.0.0.zip",
+#)
+use_repo(hugo_deps, "hugo", "hugo_theme_geekdoc")

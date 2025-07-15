@@ -692,29 +692,11 @@
     "@@rules_hugo+//hugo:extensions.bzl%hugo_deps": {
       "general": {
         "bzlTransitiveDigest": "1cLgWNh330gPR+VXu5Aakjzj2STyjYhnLvWiErZX+2I=",
-        "usagesDigest": "wPBUMDPXSVJaO8lBBPiaqFnFlekikCWLJfL+P8OG79c=",
+        "usagesDigest": "Cu1uV465SfK7+g4gQI1cT41/2QOPbKOGfoINlL6c1+4=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
         "generatedRepoSpecs": {
-          "hugo_local": {
-            "repoRuleId": "@@rules_hugo+//hugo:internal/hugo_repository.bzl%hugo_repository",
-            "attributes": {
-              "version": "0.148.1",
-              "extended": true,
-              "sha256": "",
-              "os_arch": ""
-            }
-          },
-          "hugo_theme_relearn": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "url": "https://github.com/McShelby/hugo-theme-relearn/archive/refs/tags/8.0.0.zip",
-              "sha256": "b1b32ef9f5dd8508b82bc654f8a37fe14fba054d3802a35200e83636553f147b",
-              "build_file_content": "\nfilegroup(\n    name = \"files\",\n    srcs = glob([\"**\"]),\n    visibility = [\"//visibility:public\"]\n)\n        ",
-              "strip_prefix": "hugo-theme-relearn-8.0.0"
-            }
-          },
           "hugo": {
             "repoRuleId": "@@rules_hugo+//hugo:internal/hugo_repository.bzl%hugo_repository",
             "attributes": {
