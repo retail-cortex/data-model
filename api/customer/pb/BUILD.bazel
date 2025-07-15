@@ -1,4 +1,5 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc_doc//:defs.bzl", "doc_markdown_compile")
 
 proto_library(
     name = "pb_proto",
@@ -11,4 +12,13 @@ proto_library(
         "//api/party/pb:pb_proto",
         "@protobuf//:timestamp_proto",
     ],
+)
+
+doc_markdown_compile(
+    name = "api_customer_pb_docs",
+    output_mode = "NO_PREFIX",
+    protos = [
+        ":pb_proto",
+    ],
+    visibility = ["//visibility:public"],
 )

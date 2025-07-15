@@ -14,13 +14,13 @@
  */
 syntax = "proto3";
 
-package api.inventory.pb;
+package api.inventory.facts.pb;
 
 // Go Lang Options
-option go_package = "github.com/GoogleCloudPlatform/retail-data-model/inventory/pb";
+option go_package = "github.com/retail-cortex/data-model/api/inventory/facts/pb";
 
 // Java Options
-option java_package = "com.api.inventory.pb";
+option java_package = "com.github.retailcortex.datamodel.api.inventory.facts.pb";
 option java_multiple_files = true;
 
 import "api/common/pb/model.proto";

@@ -14,24 +14,76 @@
  */
 syntax = "proto3";
 
-package api.inventory.pb;
+package api.inventory.control.pb;
 
 // Go Lang Options
-option go_package = "github.com/GoogleCloudPlatform/retail-data-model/inventory/pb";
+option go_package = "github.com/retail-cortex/data-model/api/inventory/control/pb";
 
 // Java Options
-option java_package = "com.api.inventory.pb";
+option java_package = "com.github.retailcortex.datamodel.api.inventory.control.pb";
 option java_multiple_files = true;
 
 import "api/enums/currency/pb/currency.proto";
-
+import "api/enums/uom/pb/uom.proto";
 import "api/common/pb/model.proto";
-
 import "google/protobuf/timestamp.proto";
 
-import "api/bq_table.proto";
+// Schema.org InventoryLevel integrated with ARTS ODM for unified inventory tracking
+// Combines real-time inventory status with control document processing
+message InventoryLevel {
+  // Reference to the product from merchandise domain
+  api.common.pb.VersionID product_id = 1 [json_name = "product_id"];
 
-import "api/bq_field.proto";
+  // Business location where inventory is held
+  api.common.pb.VersionID location_id = 2 [json_name = "location_id"];
+
+  // Current available quantity following Schema.org InventoryLevel
+  int32 available_quantity = 3 [json_name = "available_quantity"];
+
+  // Reserved quantity (allocated but not yet shipped)
+  int32 reserved_quantity = 4 [json_name = "reserved_quantity"];
+
+  // Unit of measure for quantities
+  api.enums.uom.pb.Count unit_of_measure = 5 [json_name = "unit_of_measure"];
+
+  // Integration with inventory facts for comprehensive tracking
+  api.common.pb.VersionID inventory_fact_id = 6 [json_name = "inventory_fact_id"];
+
+  // Last updated timestamp
+  google.protobuf.Timestamp last_updated = 7 [json_name = "last_updated"];
+}
+
+// Schema.org Offer integrated with ARTS ODM pricing and availability
+// Represents product availability and pricing in inventory control context
+message InventoryOffer {
+  // Reference to the product being offered
+  api.common.pb.VersionID product_id = 1 [json_name = "product_id"];
+
+  // Offer price following Schema.org Offer concept
+  api.common.pb.Currency price = 2 [json_name = "price"];
+
+  // Price valid from date
+  google.protobuf.Timestamp valid_from = 3 [json_name = "valid_from"];
+
+  // Price valid through date
+  google.protobuf.Timestamp valid_through = 4 [json_name = "valid_through"];
+
+  // Availability status following Schema.org ItemAvailability
+  enum AvailabilityStatus {
+    IN_STOCK = 0;
+    OUT_OF_STOCK = 1;
+    LIMITED_AVAILABILITY = 2;
+    DISCONTINUED = 3;
+    PRE_ORDER = 4;
+  }
+  AvailabilityStatus availability = 5 [json_name = "availability"];
+
+  // Inventory level details
+  InventoryLevel inventory_level = 6 [json_name = "inventory_level"];
+
+  // Supplier information
+  api.common.pb.VersionID supplier_id = 7 [json_name = "supplier_id"];
+}
 
 // A type of ICDLineItem that records allowances applicable to the whole
 // InventoryControlDocument.
@@ -155,88 +207,92 @@ message ICDLineItemMerchandiseTaxExempt {
 // A type of ICDLineItem that identifies and records the number of retail and
 // ship units and unit cost for a StockItem being received, returned,
 // transferred or shipped on an InventoryControlDocument.
+// Enhanced to integrate ARTS ODM with Schema.org Product concepts and merchandise domain.
 message ICDLineItemMerchandise {
-  //- merchandise_item_unit
-  // - merchandise_serialized_unit
+  // Reference to the unified Product from merchandise domain, integrating
+  // Schema.org Product with ARTS ODM Item concepts for comprehensive product information
+  api.common.pb.VersionID product_id = 1 [json_name = "product_id"];
 
-  // SKU, UPC, GL Code, Lot #, etc.
-  repeated api.common.pb.BusinessKey business_keys = 1 [json_name = "business_keys"];
+  // SKU, UPC, GL Code, Lot #, etc. - maintained for backward compatibility
+  // and direct business key lookups
+  repeated api.common.pb.BusinessKey business_keys = 2 [json_name = "business_keys"];
 
   // A unique system assigned identifier for the Location.
-  api.common.pb.VersionID destination_location_id = 2 [json_name = "destination_location_id"];
+  api.common.pb.VersionID destination_location_id = 3 [json_name = "destination_location_id"];
 
-  // A unique system assigned identifier for the Supplier.
-  api.common.pb.VersionID supplier_id = 3 [json_name = "supplier_id"];
+  // Reference to supplier from merchandise domain instead of just ID
+  // for richer supplier information integration
+  api.common.pb.VersionID supplier_id = 4 [json_name = "supplier_id"];
 
   // The code assigned by the supplier to uniquely identify the ITEM
-  string supplier_item_id = 4 [json_name = "supplier_item_id"];
+  string supplier_item_id = 5 [json_name = "supplier_item_id"];
 
   // Description of the Item being Ordered or Delivered. Note: If retailer is
   // ordering a new Item, the OrderDocument and AdvancedShippingDocument may not
   // have an ItemID because it doesnt exist yet.
-  string item_description = 5 [json_name = "item_description"];
+  string item_description = 6 [json_name = "item_description"];
 
   // A code which uniquely identifies the condition for inventory being
   // received, stored or shipped out by a retail store. These codes will signify
   // good, broken, damaged, wrong, partial shipment, overage, etc. This code
   // relates to the UCC code, Receiving Condition Code, data element 412.
-  string inventory_condition_code = 6 [json_name = "inventory_condition_code"];
+  string inventory_condition_code = 7 [json_name = "inventory_condition_code"];
 
   // Defines the unit type the owned attribute costs are assigned to for this
   // item.  Valid unit types include: SALE UNIT, PACK UNIT and SHIP UNIT.  A
   // single SUPPLIER ITEM may in effect have 1 to three SUPPLIER ITEM BASE COST
   // entities associated with it.
-  string cost_per_unit_code = 7 [json_name = "cost_per_unit_code"];
+  string cost_per_unit_code = 8 [json_name = "cost_per_unit_code"];
 
   // A count of all item units (in the item-cost-per-unit-type) received or
   // shipped in this document line item.
-  float cost_per_unit = 8 [json_name = "cost_per_unit"];
+  float cost_per_unit = 9 [json_name = "cost_per_unit"];
 
   // A count of the damaged item units (in the item-cost-per-unit-type) received
   // or shipped in this document line item.  This count when subtracted from the
   // document-line-item-unit-count yields the number received or shipped in good
   // condition.
-  int32 damaged_unit_count = 9 [json_name = "damaged_unit_count"];
+  int32 damaged_unit_count = 10 [json_name = "damaged_unit_count"];
 
   // The cost of the merchandise by itself exclusive of shipping and handling,
   // duties and import fees, insurance, taxes and other logistic expenses that a
   // store incurs to bring the item into the store.
-  float unit_base_cost_amount = 10 [json_name = "unit_base_cost_amount"];
+  float unit_base_cost_amount = 11 [json_name = "unit_base_cost_amount"];
 
   // The cost of the merchandise by itself plus shipping and handling, duties
   // and import fees, insurance, taxes and other logistic expenses that a store
   // incurs to bring the item into the store; and less any discounts or
   // allowances allocated to the line item (hence the term NET).
-  float unit_net_cost_amount = 11 [json_name = "unit_net_cost_amount"];
+  float unit_net_cost_amount = 12 [json_name = "unit_net_cost_amount"];
 
   // The count of units shipped versus the receiving count.  This is subtracted
   // from the document-line-item-unit-count to yield an over/under variance
   // between what a supplier said was shipped and what was counted and received
   // at by the stores staff.
-  int32 units_shipped_amount = 12 [json_name = "units_shipped_amount"];
+  int32 units_shipped_amount = 13 [json_name = "units_shipped_amount"];
 
   // A flag indicating whether this line item has been pre ticketed by the
   // SUPPLIER.
-  bool document_pre_ticketed = 13 [json_name = "document_pre_ticketed"];
+  bool document_pre_ticketed = 14 [json_name = "document_pre_ticketed"];
 
   // A code that defines the reason for the difference between the quantity
   // ordered and quantity shipped for a line item.This code relates to the UCC
   // code, Line Item Change Reason Code, data element 892.
-  string charge_reason_code = 14 [json_name = "charge_reason_code"];
+  string charge_reason_code = 15 [json_name = "charge_reason_code"];
 
   // A flag indicating whether or not the item is pre priced by the manufacturer.
-  bool pre_priced = 15 [json_name = "pre_priced"];
+  bool pre_priced = 16 [json_name = "pre_priced"];
 
   // A unique system assigned identifier for the CustomerOrder.
-  api.common.pb.VersionID customer_order_id = 16 [json_name = "customer_order_id"];
+  api.common.pb.VersionID customer_order_id = 17 [json_name = "customer_order_id"];
 
   // A unique system assigned identifier for the LineItem within the confines of
   // the CustomerOrder.
-  int32 customer_order_line_number = 17 [json_name = "customer_order_line_number"];
+  int32 customer_order_line_number = 18 [json_name = "customer_order_line_number"];
 
   // A unique code, which can be either alpha, numeric or alpha-numeric, to
   // identify an individual ITEM.
-  string serial_number = 18 [json_name = "serial_number"];
+  string serial_number = 19 [json_name = "serial_number"];
 }
 
 message ICDLineItem {
@@ -267,9 +323,9 @@ message ICDLineItem {
 }
 
 message ICDHeader {
-  api.common.pb.VersionID id = 1 [json_name = "id", (gen_bq_schema.bigquery).require = true];
+  api.common.pb.VersionID id = 1 [json_name = "id"];
   // This code identifies the type of InventoryControlDocument.
-  string document_type_code = 2 [json_name = "document_type_code", (gen_bq_schema.bigquery).require = true];
+  string document_type_code = 2 [json_name = "document_type_code"];
   // The contract against which the delivery has been made.
   string contract_reference_number = 3 [json_name = "contract_reference_number"];
   // An identifier for this document, usually preprinted on the form stock prior
@@ -278,11 +334,11 @@ message ICDHeader {
   // A unique retailer assigned identifier for an RetailStore,
   // DistributionCenter or AdministrationCenter
   // the timestamp the ICD was created
-  google.protobuf.Timestamp created = 5 [json_name = "created", (gen_bq_schema.bigquery).require = true];
+  google.protobuf.Timestamp created = 5 [json_name = "created"];
   // The last update date
-  google.protobuf.Timestamp updated = 6 [json_name = "updated", (gen_bq_schema.bigquery).require = true];
+  google.protobuf.Timestamp updated = 6 [json_name = "updated"];
   // The timestamp the ICD was completed
-  google.protobuf.Timestamp completed = 7 [json_name = "completed", (gen_bq_schema.bigquery).require = true];
+  google.protobuf.Timestamp completed = 7 [json_name = "completed"];
   // Referenced Inventory Control Documents
   repeated api.common.pb.VersionID icd_references = 8 [json_name = "icd_references"];
 }
@@ -292,12 +348,12 @@ message ICDParties {
   // Identifies the point of origin for this inventory control document.  An
   // originator may be a program (for automatically generated documents) or a
   // person.
-  api.common.pb.VersionID origin_party_id = 5 [json_name = "origin_party_id", (gen_bq_schema.bigquery).require = true];
+  api.common.pb.VersionID origin_party_id = 5 [json_name = "origin_party_id"];
   // A unique retailer assigned identifier for an RetailStore,
   // DistributionCenter or AdministrationCenter
-  api.common.pb.VersionID source_business_unit_id = 6 [json_name = "source_business_unit_id", (gen_bq_schema.bigquery).require = true];
+  api.common.pb.VersionID source_business_unit_id = 6 [json_name = "source_business_unit_id"];
   // A unique system assigned identifier for the Supplier.
-  api.common.pb.VersionID supplier_id = 7 [json_name = "supplier_id", (gen_bq_schema.bigquery).require = true];
+  api.common.pb.VersionID supplier_id = 7 [json_name = "supplier_id"];
 }
 
 message ICDDates {
@@ -322,13 +378,14 @@ message ICDDates {
 
 // A written or printed paper, or digital equivalent, that evidences the
 // movement of merchandise or supply StockItems.
+// Integrates ARTS ODM InventoryControlDocument with Schema.org Product and Offer concepts
+// for unified inventory management across retail operations.
 message InventoryControlDocument {
-  option (gen_bq_schema.bigquery_opts).table_name = "tbl_inventory_control_documents";
-  ICDHeader header = 1 [json_name = "header", (gen_bq_schema.bigquery).require = true];
-  ICDParties parties = 2 [json_name = "parties", (gen_bq_schema.bigquery).require = true];
-  ICDDates dates = 3 [json_name = "dates", (gen_bq_schema.bigquery).require = true];
+  ICDHeader header = 1 [json_name = "header"];
+  ICDParties parties = 2 [json_name = "parties"];
+  ICDDates dates = 3 [json_name = "dates"];
   // The currency code
-  api.enums.currency.pb.Currency currency = 4 [json_name = "currency", (gen_bq_schema.bigquery).require = true];
+  api.enums.currency.pb.Currency currency = 4 [json_name = "currency"];
   // A code that assigns responsibility for payment of the freight and insurance
   // charges for this inventory control document to the store or other party in
   // the transaction.
@@ -345,5 +402,32 @@ message InventoryControlDocument {
   // any shortages within three days.
   string terms_and_conditions = 8 [json_name = "terms_and_conditions"];
   // ICD line items
-  repeated ICDLineItem line_items = 9 [json_name = "line_items", (gen_bq_schema.bigquery).require = true];
+  repeated ICDLineItem line_items = 9 [json_name = "line_items"];
+
+  // Enhanced unified inventory control features integrating Schema.org and ARTS ODM
+
+  // Current inventory levels affected by this document (Schema.org InventoryLevel integration)
+  repeated InventoryLevel affected_inventory_levels = 10 [json_name = "affected_inventory_levels"];
+
+  // Product offers related to this inventory control document (Schema.org Offer integration)
+  repeated InventoryOffer related_offers = 11 [json_name = "related_offers"];
+
+  // Integration with inventory facts for comprehensive tracking and analytics
+  repeated api.common.pb.VersionID related_inventory_facts = 12 [json_name = "related_inventory_facts"];
+
+  // Document processing status following both ARTS ODM and Schema.org ActionStatusType
+  enum DocumentStatus {
+    DRAFT = 0;
+    PENDING_APPROVAL = 1;
+    APPROVED = 2;
+    IN_TRANSIT = 3;
+    RECEIVED = 4;
+    COMPLETED = 5;
+    CANCELLED = 6;
+    FAILED = 7;
+  }
+  DocumentStatus status = 13 [json_name = "status"];
+
+  // Total document value for financial integration
+  api.common.pb.Currency total_value = 14 [json_name = "total_value"];
 }

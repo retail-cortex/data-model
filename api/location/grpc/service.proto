@@ -19,12 +19,12 @@ package api.location.grpc;
 /*
  * Go Lang Options
  */
-option go_package = "github.com/retail-cortex/api/location/grpc";
+option go_package = "github.com/retail-cortex/data-model/api/location/grpc";
 
 /*
  * Java Options
  */
-option java_package = "com.retailcortex.api.location.grpc";
+option java_package = "com.github.retailcortex.datamodel.api.location.grpc";
 option java_multiple_files = true;
 
 import "google/api/annotations.proto";

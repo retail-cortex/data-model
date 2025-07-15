@@ -1,12 +1,25 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc_doc//:defs.bzl", "doc_markdown_compile")
 
 proto_library(
     name = "grpc_proto",
-    srcs = ["inventory_control_service.proto"],
+    srcs = ["service.proto"],
     visibility = ["//visibility:public"],
     deps = [
+        "//api/common/pb:pb_proto",
         "//api/inventory/control/pb:pb_proto",
+        "//api/inventory/facts/pb:pb_proto",
+        "//api/merchandise/pb:pb_proto",
         "@googleapis//google/api:annotations_proto",
         "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
     ],
+)
+
+doc_markdown_compile(
+    name = "api_inventory_control_grpc_docs",
+    output_mode = "NO_PREFIX",
+    protos = [
+        ":grpc_proto",
+    ],
+    visibility = ["//visibility:public"],
 )

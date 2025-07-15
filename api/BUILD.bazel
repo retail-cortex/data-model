@@ -1,0 +1,24 @@
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+filegroup(
+    name = "api_documents",
+    srcs = [
+        "//api/common/grpc:api_common_grpc_docs",
+        "//api/common/pb:api_common_pb_docs",
+        "//api/customer/grpc:api_customer_grpc_docs",
+        "//api/customer/pb:api_customer_pb_docs",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "api_documents_tar",
+    srcs = [
+        ":api_documents",
+    ],
+    extension = ".tgz",
+    remap_paths = {
+        "/doc_": "",
+    },
+    visibility = ["//docs:__subpackages__"],
+)

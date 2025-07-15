@@ -19,12 +19,12 @@ package api.merchandise.grpc;
 /*
  * Go Lang Options
  */
-option go_package = "github.com/GoogleCloudPlatform/retail-data-model/merchandise/grpc";
+option go_package = "github.com/retail-cortex/data-model/api/merchandise/grpc";
 
 /*
  * Java Options
  */
-option java_package = "com.api.merchandise.grpc";
+option java_package = "com.github.retailcortex.datamodel.api.merchandise.grpc";
 option java_multiple_files = true;
 
 import "google/protobuf/field_mask.proto";

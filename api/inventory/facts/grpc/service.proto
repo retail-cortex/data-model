@@ -14,31 +14,29 @@
  */
 syntax = "proto3";
 
-package api.inventory.grpc;
+package api.inventory.facts.grpc;
 
 /*
  * Go Lang Options
  */
-option go_package = "github.com/GoogleCloudPlatform/retail-data-model/inventory/grpc";
+option go_package = "github.com/retail-cortex/data-model/api/inventory/facts/grpc";
 
 /*
  * Java Options
  */
-option java_package = "com.api.inventory.grpc";
+option java_package = "com.github.retailcortex.datamodel.api.inventory.facts.grpc";
 option java_multiple_files = true;
 
-import "api/inventory/control/pb/inventory_control.proto";
+import "api/common/pb/model.proto";
+
+import "api/inventory/facts/pb/model.proto";
 
 import "google/api/annotations.proto";
 
-service InventoryControlDocuments {
-  /*
-  Lists all inventory control documents for a location for a time range
-   */
-  rpc List(api.inventory.pb.ICDHeader) returns (stream api.inventory.pb.InventoryControlDocument) {
+service InventoryFacts {
+  rpc History(api.common.pb.IDRequest) returns (stream api.inventory.facts.pb.InventoryFact) {
     option (google.api.http) = {
-      post: "/v1/inventory/icd/s"
+      get: "/v1/inventory/facts/history/{id}"
     };
   }
-
 }

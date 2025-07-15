@@ -1,4 +1,5 @@
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc_doc//:defs.bzl", "doc_markdown_compile")
 
 proto_library(
     name = "grpc_proto",
@@ -10,4 +11,13 @@ proto_library(
         "@protobuf//:empty_proto",
         "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
     ],
+)
+
+doc_markdown_compile(
+    name = "api_common_grpc_docs",
+    output_mode = "NO_PREFIX",
+    protos = [
+        ":grpc_proto",
+    ],
+    visibility = ["//visibility:public"],
 )

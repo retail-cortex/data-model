@@ -17,10 +17,10 @@ syntax = "proto3";
 package api.common.grpc;
 
 // Go Lang Options
-option go_package = "github.com/retail-cortex/api/common/grpc";
+option go_package = "github.com/retail-cortex/data-model/api/common/grpc";
 
 // Java Options
-option java_package = "com.github.retailcortext.api.common.grpc";
+option java_package = "com.github.retailcortex.datamodel.api.common.grpc";
 
 import "api/common/pb/model.proto";
 

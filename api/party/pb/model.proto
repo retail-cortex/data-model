@@ -18,10 +18,10 @@ syntax = "proto3";
 package api.party.pb;
 
 // Go Lang Options
-option go_package = "github.com/retail-cortex/api/party/pb";
+option go_package = "github.com/retail-cortex/data-model/api/party/pb";
 
 // Java Options
-option java_package = "com.github.retailcortext.api.party.pb";
+option java_package = "com.github.retailcortex.datamodel.api.party.pb";
 option java_multiple_files = true;
 
 import "google/protobuf/timestamp.proto";

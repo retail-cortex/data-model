@@ -17,10 +17,10 @@ syntax = "proto3";
 package api.enums.communication.pb;
 
 // Go Lang Options
-option go_package = "github.com/retail-cortex/api/enums/communication/pb";
+option go_package = "github.com/retail-cortex/data-model/api/enums/communication/pb";
 
 // Java Options
-option java_package = "com.retailcortex.api.enums.communication.pb";
+option java_package = "com.github.retailcortex.datamodel.api.enums.communication.pb";
 option java_multiple_files = true;
 
 enum Phone {

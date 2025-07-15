@@ -3,14 +3,14 @@ canonifyURLs = false
 relativeURLs = false
 languageCode = "en"
 defaultContentLanguage = "en"
-title = 'Google Retail Data Model'
+title = 'Retail Data Model'
 
 themesdir = "themes"
 theme = "hugo-theme-relearn"
 
 [params]
-  editURL = "https://github.com/rmcguinness/retail-data-model/blob/content/"
-  description = "Documentation Google Retail Data Model"
+  editURL = "https://github.com/retail-cortex/data-model/blob/content/"
+  description = "Documentation Retail Data Model"
   author = "Ryan McGuinness"
   showVisitedLinks = true
   collapsibleMenu = true

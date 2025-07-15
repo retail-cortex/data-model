@@ -11,3 +11,38 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+load("@rules_hugo//hugo:rules.bzl", "hugo_serve", "hugo_site", "hugo_theme")
+load("//:build/copy_file_groups.bzl", "copy_file_groups")
+
+hugo_theme(
+    name = "hugo_theme_relearn",
+    srcs = [
+        "@hugo_theme_relearn//:files",
+    ],
+    theme_name = "hugo-theme-relearn",
+)
+
+copy_file_groups(
+    name = "copy_api_docs",
+    srcs = ["//api:api_documents"],
+    prefix = "$(RULEDIR)/content/en/model",
+)
+
+hugo_site(
+    name = "docs",
+    assets = glob(["assets/**"]),
+    config_dir = glob(["config/**"]),
+    content = glob(["content/**"]) + [":copy_api_docs"],
+    data = glob(["data/**"]),
+    images = glob(["images/**"]),
+    quiet = False,
+    static = glob(["static/**"]),
+    theme = ":hugo_theme_relearn",
+    verbose = True,
+)
+
+# Run local development server
+hugo_serve(
+    name = "serve",
+    dep = [":docs"],
+)

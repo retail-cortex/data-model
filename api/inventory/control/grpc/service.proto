@@ -1,0 +1,155 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.inventory.control.grpc;
+
+/*
+ * Go Lang Options
+ */
+option go_package = "github.com/retail-cortex/data-model/api/inventory/control/grpc";
+
+/*
+ * Java Options
+ */
+option java_package = "com.github.retailcortex.datamodel.api.inventory.control.grpc";
+option java_multiple_files = true;
+
+import "api/inventory/control/pb/model.proto";
+import "api/common/pb/model.proto";
+
+import "google/api/annotations.proto";
+
+// Request message for listing inventory control documents with enhanced filtering
+message ListInventoryControlDocumentsRequest {
+  // Location filter
+  api.common.pb.VersionID location_id = 1 [json_name = "location_id"];
+
+  // Date range filter
+  api.inventory.control.pb.ICDDates date_range = 2 [json_name = "date_range"];
+
+  // Document type filter
+  string document_type_code = 3 [json_name = "document_type_code"];
+
+  // Status filter
+  api.inventory.control.pb.InventoryControlDocument.DocumentStatus status = 4 [json_name = "status"];
+
+  // Supplier filter
+  api.common.pb.VersionID supplier_id = 5 [json_name = "supplier_id"];
+}
+
+// Request message for getting inventory levels
+message GetInventoryLevelRequest {
+  api.common.pb.VersionID product_id = 1 [json_name = "product_id"];
+  api.common.pb.VersionID location_id = 2 [json_name = "location_id"];
+}
+
+// Request message for updating inventory levels
+message UpdateInventoryLevelRequest {
+  api.inventory.control.pb.InventoryLevel inventory_level = 1 [json_name = "inventory_level"];
+}
+
+// Request message for getting inventory offers
+message GetInventoryOffersRequest {
+  api.common.pb.VersionID product_id = 1 [json_name = "product_id"];
+  api.common.pb.VersionID location_id = 2 [json_name = "location_id"];
+}
+
+// Unified Inventory Control Service integrating ARTS ODM with Schema.org concepts
+// Provides comprehensive inventory management capabilities across retail operations
+service InventoryControlService {
+  // Document Management Operations (ARTS ODM based)
+
+  // Lists inventory control documents with enhanced filtering capabilities
+  rpc ListInventoryControlDocuments(ListInventoryControlDocumentsRequest)
+    returns (stream api.inventory.control.pb.InventoryControlDocument) {
+    option (google.api.http) = {
+      post: "/v1/inventory/control/documents/list"
+      body: "*"
+    };
+  }
+
+  // Creates a new inventory control document
+  rpc CreateInventoryControlDocument(api.inventory.control.pb.InventoryControlDocument)
+    returns (api.inventory.control.pb.InventoryControlDocument) {
+    option (google.api.http) = {
+      post: "/v1/inventory/control/documents"
+      body: "*"
+    };
+  }
+
+  // Updates an existing inventory control document
+  rpc UpdateInventoryControlDocument(api.inventory.control.pb.InventoryControlDocument)
+    returns (api.inventory.control.pb.InventoryControlDocument) {
+    option (google.api.http) = {
+      put: "/v1/inventory/control/documents/{header.id.id}"
+      body: "*"
+    };
+  }
+
+  // Gets a specific inventory control document
+  rpc GetInventoryControlDocument(api.common.pb.VersionID)
+    returns (api.inventory.control.pb.InventoryControlDocument) {
+    option (google.api.http) = {
+      get: "/v1/inventory/control/documents/{id}"
+    };
+  }
+
+  // Inventory Level Management (Schema.org InventoryLevel integration)
+
+  // Gets current inventory level for a product at a location
+  rpc GetInventoryLevel(GetInventoryLevelRequest)
+    returns (api.inventory.control.pb.InventoryLevel) {
+    option (google.api.http) = {
+      get: "/v1/inventory/levels/{product_id.id}/locations/{location_id.id}"
+    };
+  }
+
+  // Updates inventory level for a product at a location
+  rpc UpdateInventoryLevel(UpdateInventoryLevelRequest)
+    returns (api.inventory.control.pb.InventoryLevel) {
+    option (google.api.http) = {
+      put: "/v1/inventory/levels/{inventory_level.product_id.id}/locations/{inventory_level.location_id.id}"
+      body: "inventory_level"
+    };
+  }
+
+  // Streams real-time inventory level updates
+  rpc StreamInventoryLevels(GetInventoryLevelRequest)
+    returns (stream api.inventory.control.pb.InventoryLevel) {
+    option (google.api.http) = {
+      get: "/v1/inventory/levels/{product_id.id}/locations/{location_id.id}/stream"
+    };
+  }
+
+  // Offer Management (Schema.org Offer integration)
+
+  // Gets inventory offers for a product
+  rpc GetInventoryOffers(GetInventoryOffersRequest)
+    returns (stream api.inventory.control.pb.InventoryOffer) {
+    option (google.api.http) = {
+      get: "/v1/inventory/offers/{product_id.id}/locations/{location_id.id}"
+    };
+  }
+
+  // Creates or updates an inventory offer
+  rpc UpsertInventoryOffer(api.inventory.control.pb.InventoryOffer)
+    returns (api.inventory.control.pb.InventoryOffer) {
+    option (google.api.http) = {
+      put: "/v1/inventory/offers/{product_id.id}"
+      body: "*"
+    };
+  }
+}

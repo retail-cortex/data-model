@@ -1,3 +1,3 @@
-module github.com/GoogleCloudPlatform/retail-data-model
+module github.com/retail-cortex/data-model
 
 go 1.24.4

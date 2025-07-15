@@ -16,6 +16,6 @@
 ---
 header:
   - name: GitHub
-    ref: https://github.com/GoogleCloudPlatform/retail-data-model
+    ref: https://github.com/retail-cortex/data-model
     icon: github
     external: true

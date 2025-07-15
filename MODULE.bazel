@@ -6,6 +6,7 @@ module(
 
 # --- Base & Language Rules ---
 bazel_dep(name = "bazel_skylib", version = "1.8.0")
+bazel_dep(name = "rules_pkg", version = "1.1.0")
 bazel_dep(name = "rules_go", version = "0.55.1")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "rules_proto", version = "7.1.0")
@@ -18,8 +19,15 @@ bazel_dep(name = "gazelle", version = "0.44.0", repo_name = "bazel_gazelle")
 bazel_dep(name = "protoc-gen-bq-schema", version = "0.0.0")
 git_override(
     module_name = "protoc-gen-bq-schema",
-    commit = "ae2372691c7f9c9680d33c25aa849d41948552ae",
-    remote = "https://github.com/rrmcguinness/protoc-gen-bq-schema-fork.git",
+    commit = "990d10a73ece0216e65f37e89bc94537f528c994",
+    remote = "https://github.com/retail-cortex/protoc-gen-bq-schema.git",
+)
+
+bazel_dep(name = "rules_hugo", version = "0.0.0")
+git_override(
+    module_name = "rules_hugo",
+    commit = "e859d43862f5d45b148839af970e2959d5f8cc18",
+    remote = "https://github.com/retail-cortex/rules-hugo.git",
 )
 
 ################################################################################
@@ -32,3 +40,30 @@ go_sdk.download(version = "1.24.4")
 
 go_deps = use_extension("@bazel_gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
+
+################################################################################
+# Hugo Rules
+################################################################################
+
+hugo_deps = use_extension("@rules_hugo//hugo:extensions.bzl", "hugo_deps")
+
+# Configure Hugo repository
+hugo_deps.hugo_repository(
+    name = "hugo_local",
+    extended = True,
+    version = "0.148.1",
+)
+hugo_deps.http_archive(
+    name = "hugo_theme_relearn",
+    build_file_content = """
+filegroup(
+    name = "files",
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"]
+)
+        """,
+    sha256 = "b1b32ef9f5dd8508b82bc654f8a37fe14fba054d3802a35200e83636553f147b",
+    strip_prefix = "hugo-theme-relearn-8.0.0",
+    url = "https://github.com/McShelby/hugo-theme-relearn/archive/refs/tags/8.0.0.zip",
+)
+use_repo(hugo_deps, "hugo_local", "hugo_theme_relearn")

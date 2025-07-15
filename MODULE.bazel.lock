@@ -689,6 +689,69 @@
         ]
       }
     },
+    "@@rules_hugo+//hugo:extensions.bzl%hugo_deps": {
+      "general": {
+        "bzlTransitiveDigest": "1cLgWNh330gPR+VXu5Aakjzj2STyjYhnLvWiErZX+2I=",
+        "usagesDigest": "wPBUMDPXSVJaO8lBBPiaqFnFlekikCWLJfL+P8OG79c=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "hugo_local": {
+            "repoRuleId": "@@rules_hugo+//hugo:internal/hugo_repository.bzl%hugo_repository",
+            "attributes": {
+              "version": "0.148.1",
+              "extended": true,
+              "sha256": "",
+              "os_arch": ""
+            }
+          },
+          "hugo_theme_relearn": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "url": "https://github.com/McShelby/hugo-theme-relearn/archive/refs/tags/8.0.0.zip",
+              "sha256": "b1b32ef9f5dd8508b82bc654f8a37fe14fba054d3802a35200e83636553f147b",
+              "build_file_content": "\nfilegroup(\n    name = \"files\",\n    srcs = glob([\"**\"]),\n    visibility = [\"//visibility:public\"]\n)\n        ",
+              "strip_prefix": "hugo-theme-relearn-8.0.0"
+            }
+          },
+          "hugo": {
+            "repoRuleId": "@@rules_hugo+//hugo:internal/hugo_repository.bzl%hugo_repository",
+            "attributes": {
+              "version": "0.148.1",
+              "extended": true,
+              "sha256": "",
+              "os_arch": ""
+            }
+          },
+          "hugo_theme_book": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "url": "https://github.com/alex-shpak/hugo-book/archive/refs/tags/v11.0.0.zip",
+              "sha256": "adf41c4282974dc7b42aa28762e34b704a0aad4ec8d648eb425484dbdfbbefc8",
+              "build_file_content": "\nfilegroup(\n    name = \"files\",\n    srcs = glob([\"**\"]),\n    visibility = [\"//visibility:public\"]\n)\n        ",
+              "strip_prefix": "hugo-book-11.0.0"
+            }
+          },
+          "hugo_theme_geekdoc": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "url": "https://github.com/thegeeklab/hugo-geekdoc/releases/download/v1.5.1/hugo-geekdoc.tar.gz",
+              "sha256": "c8bfeb30f3a743afa5adbad9b7c19bd99de3e5e0f9ad5875b799dea54d79013d",
+              "build_file_content": "\nfilegroup(\n    name = \"files\",\n    srcs = glob([\"**\"]),\n    visibility = [\"//visibility:public\"]\n)\n    ",
+              "strip_prefix": ""
+            }
+          }
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "rules_hugo+",
+            "bazel_tools",
+            "bazel_tools"
+          ]
+        ]
+      }
+    },
     "@@rules_kotlin+//src/main/starlark/core/repositories:bzlmod_setup.bzl%rules_kotlin_extensions": {
       "general": {
         "bzlTransitiveDigest": "sFhcgPbDQehmbD1EOXzX4H1q/CD5df8zwG4kp4jbvr8=",

@@ -17,10 +17,10 @@ syntax = "proto3";
 package api.enums.lang.pb;
 
 // Go Lang Options
-option go_package = "github.com/retail-cortex/api/enums/lang/pb";
+option go_package = "github.com/retail-cortex/data-model/api/enums/lang/pb";
 
 // Java Options
-option java_package = "com.retailcortex.api.enums.lang.pb";
+option java_package = "com.github.retailcortex.datamodel.api.enums.lang.pb";
 option java_multiple_files = true;
 
 /*
