@@ -1,0 +1,235 @@
+load("@rules_proto_grpc_go//:defs.bzl", "go_proto_library")
+
+go_proto_library(
+    name = "climate_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/climate/pb",
+    protos = [
+        "//api/enums/climate/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "communication_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/communication/pb",
+    protos = [
+        "//api/enums/communication/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "country_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/country/pb",
+    protos = [
+        "//api/enums/country/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "currency_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/currency/pb",
+    protos = [
+        "//api/enums/currency/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "geo_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/geo/pb",
+    protos = [
+        "//api/enums/geo/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "lang_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/lang/pb",
+    protos = [
+        "//api/enums/lang/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "locale_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/locale/pb",
+    protos = [
+        "//api/enums/locale/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "party_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/party/pb",
+    protos = [
+        "//api/enums/party/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "paryment_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/paryment/pb",
+    protos = [
+        "//api/enums/paryment/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "timezone_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/timezone/pb",
+    protos = [
+        "//api/enums/timezone/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "uom_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/uom/pb",
+    protos = [
+        "//api/enums/uom/pb:pb_proto",
+    ],
+)
+
+go_proto_library(
+    name = "common_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/common/pb",
+    protos = [
+        "//api/common/pb:pb_proto",
+    ],
+    deps = [
+        ":currency_go_proto",
+        ":locale_go_proto",
+        ":uom_go_proto",
+        "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "customer_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/customer/pb",
+    protos = [
+        "//api/customer/pb:pb_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":currency_go_proto",
+        ":lang_go_proto",
+        ":party_main_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "enterprise_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enterprise/pb",
+    protos = [
+        "//api/enterprise/pb:pb_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":country_go_proto",
+        ":currency_go_proto",
+        ":lang_go_proto",
+        ":party_main_go_proto",
+        "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "events_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/events/pb",
+    protos = [
+        "//api/events/pb:pb_proto",
+    ],
+    deps = [
+        "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "inventory_control_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/inventory/control/pb",
+    protos = [
+        "//api/inventory/control/pb:pb_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":currency_go_proto",
+        ":uom_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "inventory_facts_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/inventory/facts/pb",
+    protos = [
+        "//api/inventory/facts/pb:pb_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "location_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/location/pb",
+    protos = [
+        "//api/location/pb:pb_proto",
+    ],
+    deps = [
+        ":climate_go_proto",
+        ":common_go_proto",
+        ":geo_go_proto",
+        ":timezone_go_proto",
+        ":uom_go_proto",
+        "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "merchandise_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/merchandise/pb",
+    protos = [
+        "//api/merchandise/pb:pb_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":enterprise_go_proto",
+        ":locale_go_proto",
+        "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "party_main_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/party/pb",
+    protos = [
+        "//api/party/pb:pb_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":currency_go_proto",
+        ":lang_go_proto",
+        ":party_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "payments_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/payments/pb",
+    protos = [
+        "//api/payments/pb:pb_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":country_go_proto",
+        ":currency_go_proto",
+        ":paryment_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "promotions_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/promotions/pb",
+    protos = [
+        "//api/promotions/pb:pb_proto",
+    ],
+)

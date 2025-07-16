@@ -1,0 +1,25 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc_doc//:defs.bzl", "doc_markdown_compile")
+
+proto_library(
+    name = "pb_proto",
+    srcs = ["model.proto"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//api/common/pb:pb_proto",
+        "//api/enums/country/pb:pb_proto",
+        "//api/enums/currency/pb:pb_proto",
+        "//api/enums/paryment/pb:pb_proto",
+        "@protobuf//:timestamp_proto",
+        "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
+    ],
+)
+
+doc_markdown_compile(
+    name = "api_payments_pb_docs",
+    output_mode = "NO_PREFIX",
+    protos = [
+        ":pb_proto",
+    ],
+    visibility = ["//visibility:public"],
+)
