@@ -1,4 +1,4 @@
-load("@rules_proto_grpc_go//:defs.bzl", "go_proto_library")
+load("@rules_proto_grpc_go//:defs.bzl", "go_grpc_library", "go_proto_library")
 
 go_proto_library(
     name = "climate_go_proto",
@@ -65,10 +65,10 @@ go_proto_library(
 )
 
 go_proto_library(
-    name = "paryment_go_proto",
-    importpath = "github.com/retail-cortex/data-model/api/enums/paryment/pb",
+    name = "payment_go_proto",
+    importpath = "github.com/retail-cortex/data-model/api/enums/payment/pb",
     protos = [
-        "//api/enums/paryment/pb:pb_proto",
+        "//api/enums/payment/pb:pb_proto",
     ],
 )
 
@@ -102,6 +102,18 @@ go_proto_library(
     ],
 )
 
+go_grpc_library(
+    name = "common_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/common/grpc",
+    protos = [
+        "//api/common/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
+    ],
+)
+
 go_proto_library(
     name = "customer_go_proto",
     importpath = "github.com/retail-cortex/data-model/api/customer/pb",
@@ -113,6 +125,19 @@ go_proto_library(
         ":currency_go_proto",
         ":lang_go_proto",
         ":party_main_go_proto",
+    ],
+)
+
+go_grpc_library(
+    name = "customer_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/customer/grpc",
+    protos = [
+        "//api/customer/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":customer_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
     ],
 )
 
@@ -132,6 +157,19 @@ go_proto_library(
     ],
 )
 
+go_grpc_library(
+    name = "enterprise_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/enterprise/grpc",
+    protos = [
+        "//api/enterprise/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":enterprise_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
+    ],
+)
+
 go_proto_library(
     name = "events_go_proto",
     importpath = "github.com/retail-cortex/data-model/api/events/pb",
@@ -140,6 +178,19 @@ go_proto_library(
     ],
     deps = [
         "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_grpc_library(
+    name = "events_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/events/grpc",
+    protos = [
+        "//api/events/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":events_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
     ],
 )
 
@@ -156,6 +207,19 @@ go_proto_library(
     ],
 )
 
+go_grpc_library(
+    name = "inventory_control_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/inventory/control/grpc",
+    protos = [
+        "//api/inventory/control/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":inventory_control_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
+    ],
+)
+
 go_proto_library(
     name = "inventory_facts_go_proto",
     importpath = "github.com/retail-cortex/data-model/api/inventory/facts/pb",
@@ -165,6 +229,19 @@ go_proto_library(
     deps = [
         ":common_go_proto",
         "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_grpc_library(
+    name = "inventory_facts_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/inventory/facts/grpc",
+    protos = [
+        "//api/inventory/facts/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":inventory_facts_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
     ],
 )
 
@@ -184,6 +261,19 @@ go_proto_library(
     ],
 )
 
+go_grpc_library(
+    name = "location_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/location/grpc",
+    protos = [
+        "//api/location/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":location_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
+    ],
+)
+
 go_proto_library(
     name = "merchandise_go_proto",
     importpath = "github.com/retail-cortex/data-model/api/merchandise/pb",
@@ -195,6 +285,19 @@ go_proto_library(
         ":enterprise_go_proto",
         ":locale_go_proto",
         "@protoc-gen-bq-schema//api:protos_go_proto",
+    ],
+)
+
+go_grpc_library(
+    name = "merchandise_go_grpc",
+    importpath = "github.com/retail-cortex/data-model/api/merchandise/grpc",
+    protos = [
+        "//api/merchandise/grpc:grpc_proto",
+    ],
+    deps = [
+        ":common_go_proto",
+        ":merchandise_go_proto",
+        "@googleapis//google/api:annotations_go_proto",
     ],
 )
 
@@ -222,7 +325,7 @@ go_proto_library(
         ":common_go_proto",
         ":country_go_proto",
         ":currency_go_proto",
-        ":paryment_go_proto",
+        ":payment_go_proto",
     ],
 )
 

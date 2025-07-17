@@ -1,0 +1,250 @@
+load("@rules_proto_grpc_java//:defs.bzl", "java_grpc_library", "java_proto_library")
+
+java_proto_library(
+    name = "climate_java_proto",
+    protos = ["//api/enums/climate/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "communication_java_proto",
+    protos = ["//api/enums/communication/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "country_java_proto",
+    protos = ["//api/enums/country/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "currency_java_proto",
+    protos = ["//api/enums/currency/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "geo_java_proto",
+    protos = ["//api/enums/geo/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "lang_java_proto",
+    protos = ["//api/enums/lang/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "locale_java_proto",
+    protos = ["//api/enums/locale/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "party_java_proto",
+    protos = ["//api/enums/party/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "payment_java_proto",
+    protos = ["//api/enums/payment/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "timezone_java_proto",
+    protos = ["//api/enums/timezone/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "uom_java_proto",
+    protos = ["//api/enums/uom/pb:pb_proto"],
+)
+
+java_proto_library(
+    name = "common_java_proto",
+    protos = ["//api/common/pb:pb_proto"],
+    deps = [
+        ":currency_java_proto",
+        ":locale_java_proto",
+        ":uom_java_proto",
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "common_java_grpc",
+    protos = ["//api/common/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        "@googleapis//google/api:api_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "customer_java_proto",
+    protos = ["//api/customer/pb:pb_proto"],
+    deps = [
+        ":common_java_proto",
+        ":currency_java_proto",
+        ":lang_java_proto",
+        ":party_main_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "customer_java_grpc",
+    protos = ["//api/customer/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        ":customer_java_proto",
+        "@googleapis//google/api:api_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "enterprise_java_proto",
+    protos = ["//api/enterprise/pb:pb_proto"],
+    deps = [
+        ":common_java_proto",
+        ":country_java_proto",
+        ":currency_java_proto",
+        ":lang_java_proto",
+        ":party_main_java_proto",
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "enterprise_java_grpc",
+    protos = ["//api/enterprise/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        ":enterprise_java_proto",
+        "@googleapis//google/api:api_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "events_java_proto",
+    protos = ["//api/events/pb:pb_proto"],
+    deps = [
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "events_java_grpc",
+    protos = ["//api/events/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        ":events_java_proto",
+        "@googleapis//google/api:api_java_proto",
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "inventory_control_java_proto",
+    protos = ["//api/inventory/control/pb:pb_proto"],
+    deps = [
+        ":common_java_proto",
+        ":currency_java_proto",
+        ":uom_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "inventory_control_java_grpc",
+    protos = ["//api/inventory/control/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        ":inventory_control_java_proto",
+        "@googleapis//google/api:api_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "inventory_facts_java_proto",
+    protos = ["//api/inventory/facts/pb:pb_proto"],
+    deps = [
+        ":common_java_proto",
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "inventory_facts_java_grpc",
+    protos = ["//api/inventory/facts/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        ":inventory_facts_java_proto",
+        "@googleapis//google/api:api_java_proto",
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "location_java_proto",
+    protos = ["//api/location/pb:pb_proto"],
+    deps = [
+        ":climate_java_proto",
+        ":common_java_proto",
+        ":geo_java_proto",
+        ":timezone_java_proto",
+        ":uom_java_proto",
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "location_java_grpc",
+    protos = ["//api/location/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        ":location_java_proto",
+        "@googleapis//google/api:api_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "merchandise_java_proto",
+    protos = ["//api/merchandise/pb:pb_proto"],
+    deps = [
+        ":common_java_proto",
+        ":enterprise_java_proto",
+        ":locale_java_proto",
+        "@protoc-gen-bq-schema//api:protos_java_proto",
+    ],
+)
+
+java_grpc_library(
+    name = "merchandise_java_grpc",
+    protos = ["//api/merchandise/grpc:grpc_proto"],
+    deps = [
+        ":common_java_proto",
+        ":merchandise_java_proto",
+        "@googleapis//google/api:api_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "party_main_java_proto",
+    protos = ["//api/party/pb:pb_proto"],
+    deps = [
+        ":common_java_proto",
+        ":currency_java_proto",
+        ":lang_java_proto",
+        ":party_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "payments_java_proto",
+    protos = ["//api/payments/pb:pb_proto"],
+    deps = [
+        ":common_java_proto",
+        ":country_java_proto",
+        ":currency_java_proto",
+        ":payment_java_proto",
+    ],
+)
+
+java_proto_library(
+    name = "promotions_java_proto",
+    protos = ["//api/promotions/pb:pb_proto"],
+)

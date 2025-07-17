@@ -2,24 +2,23 @@ load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_proto_grpc_doc//:defs.bzl", "doc_markdown_compile")
 
 proto_library(
-    name = "pb_proto",
-    srcs = ["model.proto"],
+    name = "grpc_proto",
+    srcs = ["service.proto"],
     visibility = ["//visibility:public"],
     deps = [
-        "//api/enums/currency/pb:pb_proto",
-        "//api/enums/locale/pb:pb_proto",
-        "//api/enums/uom/pb:pb_proto",
-        "@protobuf//:struct_proto",
-        "@protobuf//:timestamp_proto",
+        "//api/common/pb:pb_proto",
+        "//api/promotions/pb:pb_proto",
+        "@googleapis//google/api:annotations_proto",
+        "@protobuf//:empty_proto",
         "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
     ],
 )
 
 doc_markdown_compile(
-    name = "api_promotions_pb_docs",
+    name = "api_promotions_grpc_docs",
     output_mode = "NO_PREFIX",
     protos = [
-        ":pb_proto",
+        ":grpc_proto",
     ],
     visibility = ["//visibility:public"],
 )

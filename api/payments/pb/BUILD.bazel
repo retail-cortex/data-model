@@ -9,7 +9,7 @@ proto_library(
         "//api/common/pb:pb_proto",
         "//api/enums/country/pb:pb_proto",
         "//api/enums/currency/pb:pb_proto",
-        "//api/enums/paryment/pb:pb_proto",
+        "//api/enums/payment/pb:pb_proto",
         "@protobuf//:timestamp_proto",
         "@protoc-gen-bq-schema//api:bq_schema_proto_lib",
     ],

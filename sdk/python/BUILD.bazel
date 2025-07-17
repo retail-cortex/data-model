@@ -1,0 +1,107 @@
+load("@rules_proto_grpc_python//:defs.bzl", "python_grpc_library", "python_proto_library")
+
+python_proto_library(
+    name = "python_sdk_proto_library",
+    protos = [
+        "//api/common/pb:pb_proto",
+        "//api/customer/pb:pb_proto",
+        "//api/enterprise/pb:pb_proto",
+        "//api/enums/climate/pb:pb_proto",
+        "//api/enums/communication/pb:pb_proto",
+        "//api/enums/country/pb:pb_proto",
+        "//api/enums/currency/pb:pb_proto",
+        "//api/enums/geo/pb:pb_proto",
+        "//api/enums/lang/pb:pb_proto",
+        "//api/enums/locale/pb:pb_proto",
+        "//api/enums/party/pb:pb_proto",
+        "//api/enums/payment/pb:pb_proto",
+        "//api/enums/timezone/pb:pb_proto",
+        "//api/enums/uom/pb:pb_proto",
+        "//api/events/pb:pb_proto",
+        "//api/inventory/control/pb:pb_proto",
+        "//api/inventory/facts/pb:pb_proto",
+        "//api/location/pb:pb_proto",
+        "//api/merchandise/pb:pb_proto",
+        "//api/promotions/pb:pb_proto",
+    ],
+)
+
+python_grpc_library(
+    name = "common_python_sdk_proto_grpc",
+    protos = [
+        "//api/common/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)
+
+python_grpc_library(
+    name = "customer_python_sdk_proto_grpc",
+    protos = [
+        "//api/customer/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)
+
+python_grpc_library(
+    name = "enterprise_python_sdk_proto_grpc",
+    protos = [
+        "//api/enterprise/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)
+
+python_grpc_library(
+    name = "events_python_sdk_proto_grpc",
+    protos = [
+        "//api/events/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)
+
+python_grpc_library(
+    name = "inventory_control_python_sdk_proto_grpc",
+    protos = [
+        "//api/inventory/control/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)
+
+python_grpc_library(
+    name = "inventory_facts_python_sdk_proto_grpc",
+    protos = [
+        "//api/inventory/facts/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)
+
+python_grpc_library(
+    name = "location_sdk_proto_grpc",
+    protos = [
+        "//api/location/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)
+
+python_grpc_library(
+    name = "merchandise_sdk_proto_grpc",
+    protos = [
+        "//api/merchandise/grpc:grpc_proto",
+    ],
+    deps = [
+        "python_sdk_proto_library",
+    ],
+)

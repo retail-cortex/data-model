@@ -14,7 +14,7 @@ proto_library(
 )
 
 doc_markdown_compile(
-    name = "api_inventory_grpc_docs",
+    name = "api_inventory_facts_grpc_docs",
     output_mode = "NO_PREFIX",
     protos = [
         ":grpc_proto",

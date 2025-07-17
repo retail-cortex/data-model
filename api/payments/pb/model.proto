@@ -25,7 +25,7 @@ option java_multiple_files = true;
 
 import "google/protobuf/timestamp.proto";
 import "api/common/pb/model.proto";
-import "api/enums/paryment/pb/payment.proto";
+import "api/enums/payment/pb/payment.proto";
 import "api/enums/currency/pb/currency.proto";
 import "api/enums/country/pb/country.proto";
 
@@ -60,7 +60,7 @@ message PaymentInstrument {
 
   // Type of payment method (credit card, debit card, cash, etc.)
   // from the standardized payment enumeration
-  api.enums.paryment.pb.Payment payment_type = 2 [json_name = 'payment_type'];
+  api.enums.payment.pb.Payment payment_type = 2 [json_name = 'payment_type'];
 
   // Human-readable name or description of the payment instrument
   // for display purposes and customer identification
@@ -363,7 +363,7 @@ message PaymentMethod {
   string business_unit_id = 2 [json_name = 'business_unit_id'];
 
   // Type of payment method
-  api.enums.paryment.pb.Payment payment_type = 3 [json_name = 'payment_type'];
+  api.enums.payment.pb.Payment payment_type = 3 [json_name = 'payment_type'];
 
   // Indicates if this payment method is currently enabled
   bool is_enabled = 4 [json_name = 'is_enabled'];

@@ -14,13 +14,13 @@
  */
 syntax = "proto3";
 
-package api.enums.paryment.pb;
+package api.enums.payment.pb;
 
 // Go Lang Options
-option go_package = "github.com/retail-cortex/data-model/api/enums/paryment/pb";
+option go_package = "github.com/retail-cortex/data-model/api/enums/payment/pb";
 
 // Java Options
-option java_package = "com.github.retailcortex.datamodel.api.enums.paryment.pb";
+option java_package = "com.github.retailcortex.datamodel.api.enums.payment.pb";
 option java_multiple_files = true;
 
 enum Payment {
