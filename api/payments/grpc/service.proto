@@ -1,0 +1,207 @@
+/* Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package api.payments.grpc;
+
+import "api/payments/pb/model.proto";
+import "api/common/pb/model.proto";
+
+// Go Lang Options
+option go_package = "github.com/retail-cortex/data-model/api/payments/grpc";
+
+// Java Options
+option java_package = "com.github.retailcortex.datamodel.api.payments.grpc";
+option java_multiple_files = true;
+
+// Request and Response Messages for PaymentInstrumentService
+
+message CreatePaymentInstrumentRequest {
+  api.payments.pb.PaymentInstrument payment_instrument = 1;
+}
+
+message CreatePaymentInstrumentResponse {
+  api.payments.pb.PaymentInstrument payment_instrument = 1;
+}
+
+message GetPaymentInstrumentRequest {
+  string id = 1;
+}
+
+message GetPaymentInstrumentResponse {
+  api.payments.pb.PaymentInstrument payment_instrument = 1;
+}
+
+message UpdatePaymentInstrumentRequest {
+  api.payments.pb.PaymentInstrument payment_instrument = 1;
+}
+
+message UpdatePaymentInstrumentResponse {
+  api.payments.pb.PaymentInstrument payment_instrument = 1;
+}
+
+message DeletePaymentInstrumentRequest {
+  string id = 1;
+}
+
+message DeletePaymentInstrumentResponse {
+  api.common.pb.StatusResponse status = 1;
+}
+
+message SearchPaymentInstrumentsRequest {
+  // Add search criteria fields here
+}
+
+message SearchPaymentInstrumentsResponse {
+  repeated api.payments.pb.PaymentInstrument payment_instruments = 1;
+}
+
+// Service definition for managing PaymentInstrument entities.
+service PaymentInstrumentService {
+  // Retrieves a single PaymentInstrument.
+  rpc GetPaymentInstrument(GetPaymentInstrumentRequest) returns (GetPaymentInstrumentResponse) {}
+
+  // Creates a new PaymentInstrument.
+  rpc CreatePaymentInstrument(CreatePaymentInstrumentRequest) returns (CreatePaymentInstrumentResponse) {}
+
+  // Updates an existing PaymentInstrument.
+  rpc UpdatePaymentInstrument(UpdatePaymentInstrumentRequest) returns (UpdatePaymentInstrumentResponse) {}
+
+  // Deletes a PaymentInstrument.
+  rpc DeletePaymentInstrument(DeletePaymentInstrumentRequest) returns (DeletePaymentInstrumentResponse) {}
+
+  // Searches for PaymentInstruments.
+  rpc SearchPaymentInstruments(SearchPaymentInstrumentsRequest) returns (stream SearchPaymentInstrumentsResponse) {}
+}
+
+// Request and Response Messages for PaymentTransactionService
+
+message CreatePaymentTransactionRequest {
+  api.payments.pb.PaymentTransaction payment_transaction = 1;
+}
+
+message CreatePaymentTransactionResponse {
+  api.payments.pb.PaymentTransaction payment_transaction = 1;
+}
+
+message GetPaymentTransactionRequest {
+  string id = 1;
+}
+
+message GetPaymentTransactionResponse {
+  api.payments.pb.PaymentTransaction payment_transaction = 1;
+}
+
+message UpdatePaymentTransactionRequest {
+  api.payments.pb.PaymentTransaction payment_transaction = 1;
+}
+
+message UpdatePaymentTransactionResponse {
+  api.payments.pb.PaymentTransaction payment_transaction = 1;
+}
+
+message DeletePaymentTransactionRequest {
+  string id = 1;
+}
+
+message DeletePaymentTransactionResponse {
+  api.common.pb.StatusResponse status = 1;
+}
+
+message SearchPaymentTransactionsRequest {
+  // Add search criteria fields here
+}
+
+message SearchPaymentTransactionsResponse {
+  repeated api.payments.pb.PaymentTransaction payment_transactions = 1;
+}
+
+// Service definition for managing PaymentTransaction entities.
+service PaymentTransactionService {
+  // Retrieves a single PaymentTransaction.
+  rpc GetPaymentTransaction(GetPaymentTransactionRequest) returns (GetPaymentTransactionResponse) {}
+
+  // Creates a new PaymentTransaction.
+  rpc CreatePaymentTransaction(CreatePaymentTransactionRequest) returns (CreatePaymentTransactionResponse) {}
+
+  // Updates an existing PaymentTransaction.
+  rpc UpdatePaymentTransaction(UpdatePaymentTransactionRequest) returns (UpdatePaymentTransactionResponse) {}
+
+  // Deletes a PaymentTransaction.
+  rpc DeletePaymentTransaction(DeletePaymentTransactionRequest) returns (DeletePaymentTransactionResponse) {}
+
+  // Searches for PaymentTransactions.
+  rpc SearchPaymentTransactions(SearchPaymentTransactionsRequest) returns (stream SearchPaymentTransactionsResponse) {}
+}
+
+// Request and Response Messages for PaymentMethodService
+
+message CreatePaymentMethodRequest {
+  api.payments.pb.PaymentMethod payment_method = 1;
+}
+
+message CreatePaymentMethodResponse {
+  api.payments.pb.PaymentMethod payment_method = 1;
+}
+
+message GetPaymentMethodRequest {
+  string id = 1;
+}
+
+message GetPaymentMethodResponse {
+  api.payments.pb.PaymentMethod payment_method = 1;
+}
+
+message UpdatePaymentMethodRequest {
+  api.payments.pb.PaymentMethod payment_method = 1;
+}
+
+message UpdatePaymentMethodResponse {
+  api.payments.pb.PaymentMethod payment_method = 1;
+}
+
+message DeletePaymentMethodRequest {
+  string id = 1;
+}
+
+message DeletePaymentMethodResponse {
+  api.common.pb.StatusResponse status = 1;
+}
+
+message SearchPaymentMethodsRequest {
+  // Add search criteria fields here
+}
+
+message SearchPaymentMethodsResponse {
+  repeated api.payments.pb.PaymentMethod payment_methods = 1;
+}
+
+// Service definition for managing PaymentMethod entities.
+service PaymentMethodService {
+  // Retrieves a single PaymentMethod.
+  rpc GetPaymentMethod(GetPaymentMethodRequest) returns (GetPaymentMethodResponse) {}
+
+  // Creates a new PaymentMethod.
+  rpc CreatePaymentMethod(CreatePaymentMethodRequest) returns (CreatePaymentMethodResponse) {}
+
+  // Updates an existing PaymentMethod.
+  rpc UpdatePaymentMethod(UpdatePaymentMethodRequest) returns (UpdatePaymentMethodResponse) {}
+
+  // Deletes a PaymentMethod.
+  rpc DeletePaymentMethod(DeletePaymentMethodRequest) returns (DeletePaymentMethodResponse) {}
+
+  // Searches for PaymentMethods.
+  rpc SearchPaymentMethods(SearchPaymentMethodsRequest) returns (stream SearchPaymentMethodsResponse) {}
+}
